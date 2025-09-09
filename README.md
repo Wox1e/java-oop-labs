@@ -1,2 +1,1 @@
-# java-oop-labs
-Labs for OOP in JAVA
+*тут будет красивый markdown текст про лабы (честно)*
