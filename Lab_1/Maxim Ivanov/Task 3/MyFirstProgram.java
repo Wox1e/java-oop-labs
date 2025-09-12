@@ -1,8 +1,17 @@
 class MyFirstClass {
     public static void main(String[] s) {
-        for (int i = 0; i < s.length; i++) {
-            System.out.println(s[i]);
+        MySecondClass o = new MySecondClass();
+        System.out.println(o.div());
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                o.setFirst(i);
+                o.setSecond(j);
+                System.out.print(o.div());
+                System.out.print(" ");
+            }
+            System.out.println();
         }
+
     }
 }
 
@@ -11,7 +20,12 @@ class MySecondClass {
     private int first;
     private int second;
 
-    public MySecondClass(){
+    public MySecondClass(int fir, int sec){
+        first = fir;
+        second = sec;
+    }
+
+    public  MySecondClass(){
         first = 8000;
         second = 5000;
     }
@@ -32,4 +46,7 @@ class MySecondClass {
         second = value;
     }
 
+    int div(){
+        return first/second;
+    }
 }
