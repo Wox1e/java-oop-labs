@@ -30,7 +30,7 @@ public class MySecondClass {
         second = value;
     }
 
-    public int div(){
-        return first/second;
+    public int mod(){
+        return first%second;
     }
 }
