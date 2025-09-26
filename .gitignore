@@ -1,9 +1,11 @@
 # Compiled classes
 *.class
 
-# IntelliJ IDEA
+### IntelliJ IDEA ###
 .idea/
+*.iws
 *.iml
+*.ipr
 out/
 
 # Build outputs
