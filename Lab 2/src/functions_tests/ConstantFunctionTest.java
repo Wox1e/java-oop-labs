@@ -1,5 +1,6 @@
-package functions;
+package functions_tests;
 
+import functions.ConstantFunction;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,5 +1,9 @@
-package functions;
+package functions_tests;
 
+import functions.CompositeFunction;
+import functions.ConstantFunction;
+import functions.IdentityFunction;
+import functions.SqrFunction;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

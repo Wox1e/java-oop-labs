@@ -1,5 +1,6 @@
-package functions;
+package functions_tests;
 
+import functions.IdentityFunction;
 import org.junit.*;
 import static org.junit.Assert.*;
 
