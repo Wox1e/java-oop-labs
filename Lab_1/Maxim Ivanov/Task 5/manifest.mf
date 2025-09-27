@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Created-By: Maxim Ivanov
-Main-Class: MyFirstClass
-

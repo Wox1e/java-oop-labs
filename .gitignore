@@ -1,1 +1,18 @@
+# Compiled classes
+*.class
+
+### IntelliJ IDEA ###
 .idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Build outputs
+target/
+build/
+*.jar
+
+# System files
+.DS_Store
+Thumbs.db"*.iml" 

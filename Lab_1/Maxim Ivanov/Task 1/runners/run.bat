@@ -1,2 +1,0 @@
-javac MyFirstProgram.java
-java MyFirstClass
