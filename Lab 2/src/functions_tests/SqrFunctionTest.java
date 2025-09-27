@@ -1,4 +1,6 @@
-package functions;
+package functions_tests;
+
+import functions.SqrFunction;
 
 import static org.junit.jupiter.api.Assertions.*;
 

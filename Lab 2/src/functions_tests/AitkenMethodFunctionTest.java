@@ -1,5 +1,8 @@
-package functions;
+package functions_tests;
 
+import functions.AitkenMethodFunction;
+import functions.IdentityFunction;
+import functions.MathFunction;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
