@@ -1,6 +1,6 @@
 package functions;
 
-public abstract class LinkedListTabulatedFunction extends AbstractTabulatedFunction{
+public class LinkedListTabulatedFunction extends AbstractTabulatedFunction{
     private Node head;
 
     public LinkedListTabulatedFunction(double[] xValues, double[] yValues){
@@ -35,7 +35,7 @@ public abstract class LinkedListTabulatedFunction extends AbstractTabulatedFunct
         }
     }
 
-    private void addNode(double x, double y) {
+    public void addNode(double x, double y) {
         Node newNode = new Node(x, y);
 
         if (head == null) {
@@ -89,10 +89,10 @@ public abstract class LinkedListTabulatedFunction extends AbstractTabulatedFunct
         int i = 0;
         do {
             if (Math.abs(node.y - y) < 1e-9) {
+                return i;
+            } else {
                 node = node.next;
                 i++;
-            } else {
-                return i;
             }
         } while (node != head);
         return -1;
@@ -104,17 +104,17 @@ public abstract class LinkedListTabulatedFunction extends AbstractTabulatedFunct
         int i = 0;
         do {
             if (Math.abs(node.x - x) < 1e-9) {
+                return i;
+            } else {
                 node = node.next;
                 i++;
-            } else {
-                return i;
             }
         } while (node != head);
         return -1;
     }
 
     @Override
-    protected int floorIndexOfX(double x) {
+    public int floorIndexOfX(double x) {
         Node node = head;
 
         if (head.x > x) {
