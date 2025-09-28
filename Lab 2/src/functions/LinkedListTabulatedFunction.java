@@ -136,6 +136,42 @@ public abstract class LinkedListTabulatedFunction extends AbstractTabulatedFunct
         return i;
     }
 
+    @Override
+    public double interpolate(double x, int floorIndex){
+        if (this.count == 1) return this.head.y;
+
+        double y1 = this.getNode(floorIndex).y;
+        double x1 = this.getNode(floorIndex).x;
+        double y2 = this.getNode(floorIndex + 1).y;
+        double x2 = this.getNode(floorIndex + 1).x;
+
+        return y1 + ((y2 - y1) / (x2 - x1)) * (x - x1);
+    }
+
+    @Override
+    public double extrapolateLeft(double x) {
+        if (this.count == 1) return this.head.y;
+
+        double y1 = getNode(0).y;
+        double x1 = getNode(0).x;
+        double y2 = getNode(1).y;
+        double x2 = getNode(1).x;
+
+        return y1 + ((y2 - y1) / (x2 - x1)) * (x - x1);
+    }
+
+    @Override
+    public double extrapolateRight(double x){
+        if (this.count == 1) return this.head.y;
+
+        double y1 = getNode(count - 2).y;  // предпоследний
+        double x1 = getNode(count - 2).x;
+        double y2 = getNode(count - 1).y;  // последний
+        double x2 = getNode(count - 1).x;
+
+        return y1 + ((y2 - y1) / (x2 - x1)) * (x - x1);
+    }
+
     public int getCount() {
         return super.getCount();
     }
