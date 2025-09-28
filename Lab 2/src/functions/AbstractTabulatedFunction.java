@@ -7,7 +7,7 @@ public abstract class AbstractTabulatedFunction implements MathFunction, Tabulat
     public abstract double getX(int index);
     public abstract double getY(int index);
 
-    protected abstract int floorIndexOfX(double index);
+    protected abstract int floorIndexOfX(double x);
     protected abstract double extrapolateLeft(double x);
     protected abstract double extrapolateRight(double x);
     protected abstract double interpolate(double x, int floorIndex);
