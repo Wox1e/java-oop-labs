@@ -20,14 +20,8 @@ public abstract class AbstractTabulatedFunction implements MathFunction, Tabulat
         return count;
     }
 
-    public int indexOfX(double x) {
-        for (int i = 0; i < count; ++i) {
-            if (getX(i) == x) {
-                return i;
-            }
-        }
-        return -1;
-    }
+    abstract public int indexOfX(double x);
+
     @Override
     public double apply(double x) {
 
