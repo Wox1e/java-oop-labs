@@ -104,4 +104,25 @@ class ArrayTabulatedFunctionTest {
         assertEquals(0, func.indexOfX(0.5));
         assertEquals(-1, func.indexOfX(0.22356));
     }
+
+    @Test
+    void remove(){
+        double[] xVals = {0.5,  1.8};
+        double[] yVals = {2.01, 3.22};
+        ArrayTabulatedFunction func = new ArrayTabulatedFunction(xVals, yVals);
+        func.remove(0);
+        double[] expectedX = {1.8};
+        double[] expectedY = {3.22};
+        assertArrayEquals(expectedY, func.yValues);
+        assertArrayEquals(expectedX, func.xValues);
+
+        func.remove(0);
+        expectedY = new double[]{};
+        expectedX = new double[]{};
+
+        assertArrayEquals(expectedX, func.xValues);
+        assertArrayEquals(expectedY, func.yValues);
+
+    }
+
 }
