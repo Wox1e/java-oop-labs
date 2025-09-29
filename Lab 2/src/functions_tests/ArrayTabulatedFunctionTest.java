@@ -48,16 +48,13 @@ class ArrayTabulatedFunctionTest {
     }
 
     @Test
-    void leftBound() {
-        int count = arrTabFunc1.getCount();
-        arrTabFunc1.setY(count-1, 0.23);
-        assertEquals(0.23, arrTabFunc1.leftBound());
+    void rightBound() {
+        assertEquals(6.941, arrTabFunc1.rightBound());
     }
 
     @Test
-    void rightBound() {
-        arrTabFunc1.setY(0, 55.649);
-        assertEquals(55.649, arrTabFunc1.rightBound());
+    void leftBound() {
+        assertEquals(0.5, arrTabFunc1.leftBound());
     }
 
     @Test
