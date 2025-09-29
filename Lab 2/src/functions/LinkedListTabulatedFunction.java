@@ -1,6 +1,8 @@
 package functions;
 
-public class LinkedListTabulatedFunction extends AbstractTabulatedFunction{
+import org.junit.Test;
+
+public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable{
     private Node head;
 
     public LinkedListTabulatedFunction(double[] xValues, double[] yValues){
@@ -185,4 +187,55 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction{
     public double leftBound(){
         return this.head.x;
     }
+
+    @Override
+    public void insert(double x, double y) {
+        if (head == null || x > rightBound()) {
+            addNode(x, y);
+            return;
+        }
+
+        int idx = indexOfX(x);
+        if (idx != -1){
+            setY(idx, y);
+            count++;
+            return;
+        }
+
+        if (x < leftBound()){
+            Node newNode = new Node(x, y);
+            Node oldHead = head;
+            Node last = head.prev;
+
+            newNode.next = oldHead;
+            oldHead.prev = newNode;
+            last.next = newNode;
+            newNode.prev = last;
+            head = newNode;
+            count++;
+            return;
+        }
+
+        Node currentNode = head;
+        while (currentNode.x < x && currentNode.next != head){
+            currentNode = currentNode.next;
+        }
+
+        if (currentNode.next != head) {
+            Node nextNode = currentNode;
+            Node prevNode = currentNode.prev;
+            Node newNode = new Node(x, y);
+            prevNode.next = newNode;
+            newNode.prev = prevNode;
+            newNode.next = nextNode;
+            nextNode.prev = newNode;
+            count++;
+        }else {
+            throw new RuntimeException("Unexpected condition");
+        }
+
+    }
+
+
+
 }

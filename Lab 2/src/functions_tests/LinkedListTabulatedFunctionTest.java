@@ -4,6 +4,7 @@ import functions.LinkedListTabulatedFunction;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LinkedListTabulatedFunctionTest {
     double[] x_arr = new double[]{1, 2, 3, 4, 5, 6};
@@ -93,4 +94,28 @@ public class LinkedListTabulatedFunctionTest {
     public void leftBound(){
         assertEquals(1, lst.leftBound());
     }
+
+    @Test
+    public void insertTest(){
+        LinkedListTabulatedFunction emptyLst = new LinkedListTabulatedFunction(new double[]{}, new double[]{});
+        emptyLst.insert(6,1);
+        assertEquals(6, emptyLst.rightBound());
+        assertEquals(1, emptyLst.apply(6));
+        assertEquals(1, emptyLst.getCount());
+
+        lst.insert(5, 0);
+        assertEquals(0, lst.apply(5));
+
+        lst.insert(666.064, 125.664);
+        assertEquals(666.064, lst.rightBound());
+
+        lst.insert(5.06, 7.023);
+        assertEquals(7.023, lst.apply(5.06));
+
+        lst.insert(0.001, 86);
+        assertEquals(0.001, lst.leftBound());
+        assertEquals(86, lst.apply(0.001));
+
+    }
+
 }
