@@ -122,4 +122,18 @@ class ArrayTabulatedFunctionTest {
 
     }
 
+    @Test
+    void insert(){
+        double[] xVals = {0.5,  1.8};
+        double[] yVals = {2.01, 3.22};
+        ArrayTabulatedFunction func = new ArrayTabulatedFunction(xVals, yVals);
+        func.insert(0, 0.6);
+        assertEquals(0.0, func.leftBound());
+        func.insert(0.5, 1.5);
+        assertEquals(1.5, func.apply(0.5));
+        func.insert(6.2, 0.99);
+        assertEquals(6.2, func.rightBound());
+        func.insert(0.7, 1.999);
+        assertEquals(1.999, func.apply(0.7));
+    }
 }

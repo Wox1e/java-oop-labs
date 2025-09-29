@@ -2,7 +2,7 @@ package functions;
 
 import org.junit.Test;
 
-public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable{
+public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
     private Node head;
 
     public LinkedListTabulatedFunction(double[] xValues, double[] yValues){
@@ -236,6 +236,24 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
 
     }
 
+    @Override
+    public void remove(int index) {
+        Node nodeToRemove = getNode(index);
 
+        if (count == 1) {
+            head = null;
+        } else {
+            nodeToRemove.prev.next = nodeToRemove.next;
+            nodeToRemove.next.prev = nodeToRemove.prev;
 
+            if (nodeToRemove == head) {
+                head = head.next;
+            }
+        }
+
+        nodeToRemove.next = null;
+        nodeToRemove.prev = null;
+
+        count--;
+    }
 }
