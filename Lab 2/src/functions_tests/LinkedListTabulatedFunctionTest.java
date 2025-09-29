@@ -103,18 +103,18 @@ public class LinkedListTabulatedFunctionTest {
         assertEquals(1, emptyLst.apply(6));
         assertEquals(1, emptyLst.getCount());
 
-        lst.insert(5, 0);
-        assertEquals(0, lst.apply(5));
+        emptyLst.insert(5, 0);
+        assertEquals(0, emptyLst.apply(5));
 
-        lst.insert(666.064, 125.664);
-        assertEquals(666.064, lst.rightBound());
+        emptyLst.insert(666.064, 125.664);
+        assertEquals(666.064, emptyLst.rightBound());
 
-        lst.insert(5.06, 7.023);
-        assertEquals(7.023, lst.apply(5.06));
+        emptyLst.insert(5.06, 7.023);
+        assertEquals(7.023, emptyLst.apply(5.06));
 
-        lst.insert(0.001, 86);
-        assertEquals(0.001, lst.leftBound());
-        assertEquals(86, lst.apply(0.001));
+        emptyLst.insert(0.001, 86);
+        assertEquals(0.001, emptyLst.leftBound());
+        assertEquals(86, emptyLst.apply(0.001));
 
     }
 
