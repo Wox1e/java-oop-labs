@@ -37,18 +37,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         }
     }
 
-    public static class Node {
-        public Node next;
-        public Node prev;
-        public double x;
-        public double y;
-
-        public Node(double x, double y){
-            this.x = x;
-            this.y = y;
-        }
-    }
-
     public void addNode(double x, double y) {
         Node newNode = new Node(x, y);
 
