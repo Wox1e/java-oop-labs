@@ -1,11 +1,10 @@
 package functions;
 
-import org.junit.Test;
-
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
     private Node head;
 
-    public LinkedListTabulatedFunction(double[] xValues, double[] yValues){
+    public LinkedListTabulatedFunction(double[] xValues, double[] yValues) throws IllegalArgumentException{
+        if (xValues.length < 2) throw new IllegalArgumentException("lower than 2 strings");
         this.count = 0;
         this.head = null;
         for(int i = 0;i<xValues.length;i++){
@@ -13,8 +12,8 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         }
     }
 
-    public LinkedListTabulatedFunction(MathFunction source, double xFrom, double xTo, int count) {
-
+    public LinkedListTabulatedFunction(MathFunction source, double xFrom, double xTo, int count) throws IllegalArgumentException{
+        if (count < 2) throw new IllegalArgumentException("lower than 2 strings");
         if (xFrom > xTo) {
             double temp = xFrom;
             xFrom = xTo;
@@ -83,7 +82,10 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
     @Override
-    public double getX(int index){
+    public double getX(int index) throws IllegalArgumentException {
+        if (index < 0 || index >= count) {
+            throw new IllegalArgumentException("Index " + index + " is out of range");
+        }
         return getNode(index).x;
     }
 
@@ -128,7 +130,8 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
     @Override
-    public int floorIndexOfX(double x) {
+    public int floorIndexOfX(double x) throws IllegalArgumentException{
+        if (x < leftBound()) throw new IllegalArgumentException("Index " + x + " is lower than left bound");
         Node node = head;
 
         if (head.x > x) {
@@ -152,7 +155,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
 
     @Override
     public double interpolate(double x, int floorIndex){
-        if (this.count == 1) return this.head.y;
 
         double y1 = this.getNode(floorIndex).y;
         double x1 = this.getNode(floorIndex).x;
@@ -210,7 +212,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         int idx = indexOfX(x);
         if (idx != -1){
             setY(idx, y);
-            count++;
             return;
         }
 

@@ -6,14 +6,15 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
     protected double[] xValues;
     protected double[] yValues;
 
-    public ArrayTabulatedFunction(double[] xValues, double[] yValues) {
+    public ArrayTabulatedFunction(double[] xValues, double[] yValues) throws IllegalArgumentException{
+        if (xValues.length < 2) throw new IllegalArgumentException("lower than 2 strings");
         this.count = xValues.length;
         this.xValues = Arrays.copyOf(xValues, count);
         this.yValues = Arrays.copyOf(yValues, count);
     }
 
-    public ArrayTabulatedFunction(MathFunction source, double xFrom, double xTo, int count) {
-
+    public ArrayTabulatedFunction(MathFunction source, double xFrom, double xTo, int count) throws IllegalArgumentException{
+        if (count < 2) throw new IllegalArgumentException("lower than 2 strings");
         this.count = count;
         xValues = new double[count];
         yValues = new double[count];
@@ -106,7 +107,6 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
 
     @Override
     protected double interpolate(double x, int floorIndex) {
-        if (count == 1) return getY(0);
         return this.interpolate(x, xValues[floorIndex], xValues[floorIndex + 1], yValues[floorIndex], yValues[floorIndex + 1]);
     }
 

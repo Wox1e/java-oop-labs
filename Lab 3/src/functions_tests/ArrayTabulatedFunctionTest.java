@@ -1,6 +1,6 @@
 package functions;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,8 +69,8 @@ class ArrayTabulatedFunctionTest {
 
     @Test
     void extrapolateLeft() {
-        ArrayTabulatedFunction function = new ArrayTabulatedFunction(x -> 5.2, 2.0, 2.0, 1);
-        double result = function.extrapolateLeft(-10.0);
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(x -> 5.2, 2.0, 3.0, 2);
+        double result = function.extrapolateLeft(1.0);
         assertEquals(5.2, result, 1e-10);
     }
 
@@ -136,4 +136,12 @@ class ArrayTabulatedFunctionTest {
         func.insert(0.7, 1.999);
         assertEquals(1.999, func.apply(0.7));
     }
+
+    @Test
+    public void ConstructorTest(){
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()->new ArrayTabulatedFunction(new double[]{1}, new double[]{1}));
+        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, ()->new ArrayTabulatedFunction(y->1, 1, 3, 1));
+    }
+
+
 }

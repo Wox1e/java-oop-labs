@@ -3,7 +3,7 @@ package functions_tests;
 import functions.LinkedListTabulatedFunction;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LinkedListTabulatedFunctionTest {
     double[] x_arr = new double[]{1, 2, 3, 4, 5, 6};
@@ -20,6 +20,7 @@ public class LinkedListTabulatedFunctionTest {
     @Test
     public void getX() {
         assertEquals(2, lst.getX(1));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()->lst.getX(-1));
     }
 
     @Test
@@ -46,6 +47,7 @@ public class LinkedListTabulatedFunctionTest {
     @Test
     public void floorIndexOfX(){
         assertEquals(1, lst.floorIndexOfX(2.5));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()->lst.floorIndexOfX(-999));
     }
 
     @Test
@@ -58,30 +60,32 @@ public class LinkedListTabulatedFunctionTest {
     public void extrapolateLeft() {
         double expected = 0.5;
         assertEquals(expected, lst.extrapolateLeft(0.5), 1e-9);
-
         assertEquals(-1.0, lst.extrapolateLeft(-1.0), 1e-9);
 
-        // Тест для одной точки
-        double[] singleX = {2.0};
-        double[] singleY = {3.0};
-        LinkedListTabulatedFunction singleFunc = new LinkedListTabulatedFunction(singleX, singleY);
-        assertEquals(3.0, singleFunc.extrapolateLeft(1.0), 1e-9);
-        assertEquals(3.0, singleFunc.extrapolateLeft(5.0), 1e-9);
+        // ЗАМЕНИТЬ тест для одной точки на тест для двух точек
+        double[] twoX = {2.0, 3.0};
+        double[] twoY = {3.0, 4.0};
+        LinkedListTabulatedFunction twoPointFunc = new LinkedListTabulatedFunction(twoX, twoY);
+
+        // Экстраполяция слева от первой точки
+        assertEquals(2.0, twoPointFunc.extrapolateLeft(1.0), 1e-9);
+        assertEquals(1.0, twoPointFunc.extrapolateLeft(0.0), 1e-9);
     }
 
     @Test
     public void extrapolateRight() {
         double expected = 7.0;
         assertEquals(expected, lst.extrapolateRight(7.0), 1e-9);
-
         assertEquals(8.0, lst.extrapolateRight(8.0), 1e-9);
 
-        // Тест для одной точки
-        double[] singleX = {2.0};
-        double[] singleY = {3.0};
-        LinkedListTabulatedFunction singleFunc = new LinkedListTabulatedFunction(singleX, singleY);
-        assertEquals(3.0, singleFunc.extrapolateRight(3.0), 1e-9);
-        assertEquals(3.0, singleFunc.extrapolateRight(10.0), 1e-9);
+        // ЗАМЕНИТЬ тест для одной точки на тест для двух точек
+        double[] twoX = {2.0, 3.0};
+        double[] twoY = {3.0, 4.0};
+        LinkedListTabulatedFunction twoPointFunc = new LinkedListTabulatedFunction(twoX, twoY);
+
+        // Экстраполяция справа от последней точки
+        assertEquals(5.0, twoPointFunc.extrapolateRight(4.0), 1e-9);
+        assertEquals(6.0, twoPointFunc.extrapolateRight(5.0), 1e-9);
     }
 
     @Test
@@ -95,26 +99,34 @@ public class LinkedListTabulatedFunctionTest {
     }
 
     @Test
-    public void insertTest(){
-        LinkedListTabulatedFunction emptyLst = new LinkedListTabulatedFunction(new double[]{}, new double[]{});
-        emptyLst.insert(6,1);
-        assertEquals(6, emptyLst.rightBound());
-        assertEquals(1, emptyLst.apply(6));
-        assertEquals(1, emptyLst.getCount());
+    public void insert() {
 
-        emptyLst.insert(5, 0);
-        assertEquals(0, emptyLst.apply(5));
+        LinkedListTabulatedFunction lst = new LinkedListTabulatedFunction(
+                new double[]{1.0, 2.0},
+                new double[]{10.0, 20.0}
+        );
 
-        emptyLst.insert(666.064, 125.664);
-        assertEquals(666.064, emptyLst.rightBound());
+        // Вставка справа
+        lst.insert(3.0, 30.0);
+        assertEquals(3.0, lst.rightBound(), 1e-9);
+        assertEquals(30.0, lst.apply(3.0), 1e-9);
+        assertEquals(3, lst.getCount());
 
-        emptyLst.insert(5.06, 7.023);
-        assertEquals(7.023, emptyLst.apply(5.06));
+        // Вставка слева
+        lst.insert(0.5, 5.0);
+        assertEquals(0.5, lst.leftBound(), 1e-9);
+        assertEquals(5.0, lst.apply(0.5), 1e-9);
+        assertEquals(4, lst.getCount());
 
-        emptyLst.insert(0.001, 86);
-        assertEquals(0.001, emptyLst.leftBound());
-        assertEquals(86, emptyLst.apply(0.001));
+        // Вставка в середину
+        lst.insert(1.5, 15.0);
+        assertEquals(15.0, lst.apply(1.5), 1e-9);
+        assertEquals(5, lst.getCount());
 
+        // Вставка существующей точки
+        lst.insert(1.5, 150.0);
+        assertEquals(150.0, lst.apply(1.5), 1e-9);
+        assertEquals(5, lst.getCount());
     }
 
     @Test
@@ -123,10 +135,18 @@ public class LinkedListTabulatedFunctionTest {
         assertEquals(4, lst.getY(2));
         lst.remove(0);
         assertEquals(2, lst.getY(0));
-        double[] xVal = new double[]{1};
-        double[] yVal = new double[]{1};
+        double[] xVal = new double[]{1, 2};
+        double[] yVal = new double[]{1, 2};
         LinkedListTabulatedFunction test_lst = new LinkedListTabulatedFunction(xVal, yVal);
         test_lst.remove(0);
-        assertEquals(0, test_lst.getCount());
+        assertEquals(1, test_lst.getCount());
+    }
+
+    @Test
+    public void testConstructorWithSinglePoint() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new LinkedListTabulatedFunction(new double[]{1.0}, new double[]{2.0}));
+        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class,
+                () -> new LinkedListTabulatedFunction(y->1, 1, 2, 1));
     }
 }
