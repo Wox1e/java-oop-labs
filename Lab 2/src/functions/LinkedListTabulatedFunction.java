@@ -195,12 +195,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
             return;
         }
 
-        int idx = indexOfX(x);
-        if (idx != -1){
-            setY(idx, y);
-            count++;
-            return;
-        }
 
         if (x < leftBound()){
             Node newNode = new Node(x, y);
@@ -220,6 +214,8 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         while (currentNode.x < x && currentNode.next != head){
             currentNode = currentNode.next;
         }
+
+        if (currentNode.x == x) currentNode.y = y;
 
         if (currentNode.next != head) {
             Node nextNode = currentNode;
