@@ -3,7 +3,6 @@ package functions_tests;
 import functions.LinkedListTabulatedFunction;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LinkedListTabulatedFunctionTest {
@@ -118,4 +117,16 @@ public class LinkedListTabulatedFunctionTest {
 
     }
 
+    @Test
+    void remove(){
+        lst.remove(2);
+        assertEquals(4, lst.getY(2));
+        lst.remove(0);
+        assertEquals(2, lst.getY(0));
+        double[] xVal = new double[]{1};
+        double[] yVal = new double[]{1};
+        LinkedListTabulatedFunction test_lst = new LinkedListTabulatedFunction(xVal, yVal);
+        test_lst.remove(0);
+        assertEquals(0, test_lst.getCount());
+    }
 }
