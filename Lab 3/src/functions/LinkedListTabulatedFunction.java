@@ -1,6 +1,8 @@
 package functions;
 
-public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
+import java.util.Iterator;
+
+public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Iterable<Point>{
     private Node head;
 
     public LinkedListTabulatedFunction(double[] xValues, double[] yValues) throws IllegalArgumentException{
@@ -268,5 +270,10 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         nodeToRemove.prev = null;
 
         count--;
+    }
+
+    @Override
+    public Iterator<Point> iterator() {
+        throw new UnsupportedOperationException("Iterator not supported");
     }
 }
