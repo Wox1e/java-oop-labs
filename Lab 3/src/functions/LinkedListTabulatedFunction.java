@@ -1,5 +1,7 @@
 package functions;
 
+import exceptions.InterpolationException;
+
 import java.util.Iterator;
 
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Iterable<Point>{
@@ -159,6 +161,9 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
 
     @Override
     public double interpolate(double x, int floorIndex){
+
+        if (x < getX(floorIndex) || x > getX(floorIndex+1)) {
+            throw new InterpolationException("The x value out of interpolate interval");}
 
         double y1 = this.getNode(floorIndex).y;
         double x1 = this.getNode(floorIndex).x;
