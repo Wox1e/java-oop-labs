@@ -1,8 +1,14 @@
 package functions_tests;
 
+import exceptions.ArrayIsNotSortedException;
+import exceptions.DifferentLengthOfArraysException;
+import functions.Point;
 import org.junit.jupiter.api.Test;
 
 import functions.AbstractTabulatedFunction;
+
+import java.util.Iterator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -70,6 +76,11 @@ class MockTabulatedFunction extends AbstractTabulatedFunction {
     public double rightBound() {
         return 0;
     }
+
+    @Override
+    public Iterator<Point> iterator() {
+        return null;
+    }
 }
 
 class AbstractTabulatedFunctionTest {
@@ -103,4 +114,37 @@ class AbstractTabulatedFunctionTest {
         double result = mock.interpolate(10.0, 0.0, 10.0, 5.0, 15.0);
         assertEquals(15.0, result, 0.001);
     }
+
+    @Test()
+    public void testCheckLengthIsTheSame() {
+        double[] arr1 = {1,3,86};
+        double[] arr2 = {0,0,0};
+
+        assertDoesNotThrow(() -> {
+            AbstractTabulatedFunction.checkLengthIsTheSame(arr1, arr2);
+        });
+
+        double[] arr3 = {1, 5};
+
+        assertThrows(DifferentLengthOfArraysException.class, () -> {
+                AbstractTabulatedFunction.checkLengthIsTheSame(arr1, arr3);
+        });
+    }
+
+    @Test
+    public void testCheckSorted() {
+        double[] sorted = {1,3,5,8,99,520};
+        double[] notSorted = {0,15,65,2,354};
+
+        assertDoesNotThrow(() -> {
+            AbstractTabulatedFunction.checkSorted(sorted);
+        });
+
+        assertThrows(ArrayIsNotSortedException.class, () -> {
+            AbstractTabulatedFunction.checkSorted(notSorted);
+        });
+
+    }
+
+
 }
