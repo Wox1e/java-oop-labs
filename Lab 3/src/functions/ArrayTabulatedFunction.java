@@ -8,6 +8,8 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
     protected double[] yValues;
 
     public ArrayTabulatedFunction(double[] xValues, double[] yValues) throws IllegalArgumentException{
+        checkLengthIsTheSame(xValues, yValues);
+        checkSorted(xValues);
         if (xValues.length < 2) throw new IllegalArgumentException("lower than 2 strings");
         this.count = xValues.length;
         this.xValues = Arrays.copyOf(xValues, count);

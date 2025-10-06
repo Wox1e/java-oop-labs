@@ -135,10 +135,13 @@ class AbstractTabulatedFunctionTest {
     public void testCheckSorted() {
         double[] sorted = {1,3,5,8,99,520};
         double[] notSorted = {0,15,65,2,354};
+        double[] empty = {};
 
         assertDoesNotThrow(() -> {
             AbstractTabulatedFunction.checkSorted(sorted);
+            AbstractTabulatedFunction.checkSorted(empty);
         });
+
 
         assertThrows(ArrayIsNotSortedException.class, () -> {
             AbstractTabulatedFunction.checkSorted(notSorted);
