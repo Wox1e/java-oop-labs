@@ -2,6 +2,8 @@ package functions;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Iterator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ArrayTabulatedFunctionTest {
@@ -141,6 +143,33 @@ class ArrayTabulatedFunctionTest {
     public void ConstructorTest(){
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()->new ArrayTabulatedFunction(new double[]{1}, new double[]{1}));
         IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, ()->new ArrayTabulatedFunction(y->1, 1, 3, 1));
+    }
+
+    @Test
+    public void iteratorTest(){
+        double[] xVals = {0.41,  1.224, 5.56};
+        double[] yVals = {2.79, 4.252, 0.85};
+        ArrayTabulatedFunction func = new ArrayTabulatedFunction(xVals, yVals);
+        Iterator<Point> iterator = func.iterator();
+        int i = 0;
+        while(iterator.hasNext()) {
+            Point point = iterator.next();
+            assertEquals(point.x, xVals[i]);
+            assertEquals(point.y, yVals[i]);
+            ++i;
+        }
+
+        assertThrows(RuntimeException.class, () -> {iterator.next();});
+
+        i = 0;
+        for (Point point : func) {
+            assertEquals(point.x, xVals[i]);
+            assertEquals(point.y, yVals[i]);
+            ++i;
+        }
+
+
+
     }
 
 
