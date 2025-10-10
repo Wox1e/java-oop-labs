@@ -1,8 +1,12 @@
 package functions_tests;
 
+import functions.Point;
 import org.junit.jupiter.api.Test;
 
 import functions.AbstractTabulatedFunction;
+
+import java.util.Iterator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -69,6 +73,12 @@ class MockTabulatedFunction extends AbstractTabulatedFunction {
     @Override
     public double rightBound() {
         return 0;
+    }
+
+    @Override
+    public Iterator<Point> iterator(){
+
+        return null;
     }
 }
 
