@@ -238,14 +238,13 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
             return;
         }
 
-        Node currentNode = head;
-        while (currentNode.x < x && currentNode.next != head){
-            currentNode = currentNode.next;
+        Node nextNode = head;
+        while (nextNode.x < x && nextNode.next != head){
+            nextNode = nextNode.next;
         }
 
-        if (currentNode.next != head) {
-            Node nextNode = currentNode;
-            Node prevNode = currentNode.prev;
+        if (nextNode.next != head) {
+            Node prevNode = nextNode.prev;
             Node newNode = new Node(x, y);
             prevNode.next = newNode;
             newNode.prev = prevNode;
@@ -281,6 +280,28 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
 
     @Override
     public Iterator<Point> iterator() {
-        throw new UnsupportedOperationException("Iterator not supported");
+        return new Iterator<Point>() {
+            private Node node = head;
+
+            @Override
+            public boolean hasNext() {
+                return node != null;
+            }
+
+            @Override
+            public Point next() {
+                if (!hasNext()) throw new java.util.NoSuchElementException();
+
+                Point point = new Point(node.x, node.y);
+
+                if (node.next == head) {
+                    node = null;
+                } else {
+                    node = node.next;
+                }
+
+                return point;
+            }
+        };
     }
 }

@@ -1,7 +1,10 @@
 package functions_tests;
 
 import functions.LinkedListTabulatedFunction;
+import functions.Point;
 import org.junit.jupiter.api.Test;
+
+import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -148,5 +151,25 @@ public class LinkedListTabulatedFunctionTest {
                 () -> new LinkedListTabulatedFunction(new double[]{1.0}, new double[]{2.0}));
         IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class,
                 () -> new LinkedListTabulatedFunction(y->1, 1, 2, 1));
+    }
+
+    @Test
+    void testIterator() {
+        Iterator<Point> iterator = lst.iterator();  // Правильно!
+
+        int i = -1;
+        while (iterator.hasNext()) {
+            Point point = iterator.next();
+            i++;
+            assertEquals(point.x, x_arr[i]);
+            assertEquals(point.y, y_arr[i]);
+        }
+
+        i = -1;
+        for (Point point : lst){
+            i++;
+            assertEquals(point.x, x_arr[i]);
+            assertEquals(point.y, y_arr[i]);
+        }
     }
 }
