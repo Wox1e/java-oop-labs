@@ -8,6 +8,8 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
     protected double[] yValues;
 
     public ArrayTabulatedFunction(double[] xValues, double[] yValues) throws IllegalArgumentException{
+        checkLengthIsTheSame(xValues, yValues);
+        checkSorted(xValues);
         if (xValues.length < 2) throw new IllegalArgumentException("lower than 2 strings");
         this.count = xValues.length;
         this.xValues = Arrays.copyOf(xValues, count);
@@ -191,6 +193,20 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
 
     @Override
     public Iterator<Point> iterator() {
-        throw new UnsupportedOperationException("Iterator not supported");
-    }
-}
+        return new Iterator<Point>() {
+            private int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < count;
+            }
+
+            @Override
+            public Point next() {
+                if(!hasNext()) throw new IndexOutOfBoundsException("No next element");
+                Point point = new Point(getX(index), getY(index));
+                ++index;
+                return point;
+            }
+        };
+    }}
