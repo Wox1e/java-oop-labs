@@ -1,9 +1,7 @@
 package functions_tests;
 
-import functions.Point;
+import functions.*;
 import org.junit.jupiter.api.Test;
-
-import functions.AbstractTabulatedFunction;
 
 import java.util.Iterator;
 
@@ -77,7 +75,6 @@ class MockTabulatedFunction extends AbstractTabulatedFunction {
 
     @Override
     public Iterator<Point> iterator(){
-
         return null;
     }
 }
@@ -112,5 +109,27 @@ class AbstractTabulatedFunctionTest {
     public void testInterpolateAtRightBoundary() {
         double result = mock.interpolate(10.0, 0.0, 10.0, 5.0, 15.0);
         assertEquals(15.0, result, 0.001);
+    }
+
+    @Test
+    public void testToStringLinkedList(){
+        double[] xValues = new double[]{0.2, 0.3};
+        double[] yValues = new double[]{0.5, 0.7};
+        TabulatedFunction lst = new LinkedListTabulatedFunction(xValues, yValues);
+        String expected = "LinkedListTabulatedFunction size = 2\n[0.2; 0.5]\n[0.3; 0.7]\n";
+        String actual = lst.toString();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testToStringArray() {
+        double[] xValues = {1.0, 2.0};
+        double[] yValues = {10.0, 20.0};
+        TabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        String expected = "ArrayTabulatedFunction size = 2\n[1.0; 10.0]\n[2.0; 20.0]\n";
+        String actual = function.toString();
+
+        assertEquals(expected, actual);
     }
 }

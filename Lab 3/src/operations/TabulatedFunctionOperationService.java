@@ -6,8 +6,6 @@ import functions.TabulatedFunction;
 import functions.factory.ArrayTabulatedFunctionFactory;
 import functions.factory.TabulatedFunctionFactory;
 
-import java.util.Iterator;
-
 public class TabulatedFunctionOperationService {
 
     private TabulatedFunctionFactory factory;

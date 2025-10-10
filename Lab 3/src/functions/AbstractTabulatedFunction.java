@@ -56,5 +56,20 @@ public abstract class AbstractTabulatedFunction implements MathFunction, Tabulat
         return interpolate(x, floorIndexOfX(x));
     }
 
-
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append(getClass().getSimpleName())
+                .append(" size = ")
+                .append(count)
+                .append("\n");
+        for(Point point : this) {
+            str.append("[")
+                    .append(point.x)
+                    .append("; ")
+                    .append(point.y)
+                    .append("]\n");
+        }
+        return str.toString();
+    }
 }
