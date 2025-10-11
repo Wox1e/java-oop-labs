@@ -13,6 +13,13 @@ public final class FunctionsIO {
     private FunctionsIO() {
         throw new UnsupportedOperationException();
     }
+
+    void serialize(BufferedOutputStream stream, TabulatedFunction function) throws IOException {
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(stream);
+        objectOutputStream.writeObject(function);
+        objectOutputStream.flush();
+    }
+
     static void writeTabulatedFunction(BufferedWriter writer, TabulatedFunction function){
         PrintWriter printWriter = new PrintWriter(writer);
 
