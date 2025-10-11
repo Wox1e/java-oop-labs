@@ -5,6 +5,9 @@ import functions.TabulatedFunction;
 import functions.factory.TabulatedFunctionFactory;
 
 import java.io.*;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 public final class FunctionsIO {
     private FunctionsIO() {
@@ -45,4 +48,24 @@ public final class FunctionsIO {
 
         return factory.create(xValues, yValues);
     }
+
+    static TabulatedFunction readTabulatedFunction(BufferedReader reader, TabulatedFunctionFactory factory) throws IOException {
+        int count = Integer.parseInt(reader.readLine());
+        double[] xValues = new double[count];
+        double[] yValues = new double[count];
+        NumberFormat formatter = NumberFormat.getInstance(Locale.forLanguageTag("ru"));
+        for (int i = 0; i < count; ++i) {
+            String line = reader.readLine();
+            String[] nums = line.split(" ");
+            try {
+                xValues[i] = formatter.parse(nums[0]).doubleValue();
+                yValues[i] = formatter.parse(nums[1]).doubleValue();
+            } catch (ParseException e) {
+                throw new IOException(e);
+            }
+        }
+        return factory.create(xValues, yValues);
+    }
+
+
 }
