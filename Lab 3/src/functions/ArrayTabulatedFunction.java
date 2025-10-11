@@ -1,11 +1,16 @@
 package functions;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Removable, Insertable {
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Removable, Insertable, Serializable {
     protected double[] xValues;
     protected double[] yValues;
+
+    @Serial
+    private static final long serialVersionUID = -6025850912561369097L;
 
     public ArrayTabulatedFunction(double[] xValues, double[] yValues) throws IllegalArgumentException{
         checkLengthIsTheSame(xValues, yValues);
