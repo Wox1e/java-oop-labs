@@ -16,3 +16,6 @@ build/
 # System files
 .DS_Store
 Thumbs.db"*.iml" 
+
+/input/
+/output/
