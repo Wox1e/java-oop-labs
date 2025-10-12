@@ -15,7 +15,7 @@ public final class FunctionsIO {
     }
 
     static void serialize(BufferedOutputStream stream, TabulatedFunction function) throws IOException {
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(stream);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(stream); // Каждый раз создаётся новый ObjectOutputStream и это ломает последовательную сериализацию...
         objectOutputStream.writeObject(function);
         objectOutputStream.flush();
     }
