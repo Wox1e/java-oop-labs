@@ -2,10 +2,15 @@ package functions;
 
 import exceptions.InterpolationException;
 
+import java.io.Serial;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Iterable<Point>{
     private Node head;
+    @Serial
+    private static final long serialVersionUID = -7854477956806081056L;
+
 
     public LinkedListTabulatedFunction(double[] xValues, double[] yValues) throws IllegalArgumentException{
         checkLengthIsTheSame(xValues, yValues);
@@ -290,7 +295,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
 
             @Override
             public Point next() {
-                if (!hasNext()) throw new java.util.NoSuchElementException();
+                if (!hasNext()) throw new NoSuchElementException();
 
                 Point point = new Point(node.x, node.y);
 

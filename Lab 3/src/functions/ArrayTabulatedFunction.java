@@ -151,49 +151,39 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
 
     @Override
     public void insert(double x, double y) {
-        if (this.leftBound() <= x && x <= this.rightBound()){
-            for(int i = 0;i<count;i++){
+        double[] newXValues = new double[count + 1];
+        double[] newYValues = new double[count + 1];
+        int insertPosition = 0;
+
+        if (this.leftBound() <= x && x <= this.rightBound()) {
+            for (int i = 0; i < count; i++) {
                 if (this.xValues[i] == x) {
                     this.yValues[i] = y;
-                    break;
+                    return;
                 }
-                if (this.xValues[i] > x){
-                    double[] xVal = new double[count + 1];
-                    double[] yVal = new double[count + 1];
-                    System.arraycopy(xValues, 0, xVal, 0, i);
-                    System.arraycopy(yValues, 0, yVal, 0, i);
-                    xVal[i] = x;
-                    yVal[i] = y;
-                    System.arraycopy(xValues, i, xVal, i + 1, count - i);
-                    System.arraycopy(yValues, i, yVal, i + 1, count - i);
-                    this.xValues = xVal;
-                    this.yValues = yVal;
-                    this.count++;
+                if (this.xValues[i] > x) {
+                    insertPosition = i;
                     break;
                 }
             }
-        }
-        else if (x < this.leftBound()) {
-            double[] xVal = new double[count + 1];
-            double[] yVal = new double[count + 1];
-            xVal[0] = x;
-            yVal[0] = y;
-            System.arraycopy(xValues, 0, xVal, 1, count);
-            System.arraycopy(yValues, 0, yVal, 1, count);
-            this.xValues = xVal;
-            this.yValues = yVal;
-            this.count++;
+        } else if (x < this.leftBound()) {
+            insertPosition = 0;
         } else {
-            double[] xVal = new double[count + 1];
-            double[] yVal = new double[count + 1];
-            System.arraycopy(xValues, 0, xVal, 0, count);
-            System.arraycopy(yValues, 0, yVal, 0, count);
-            xVal[count] = x;
-            yVal[count] = y;
-            this.xValues = xVal;
-            this.yValues = yVal;
-            this.count++;
+            insertPosition = count;
         }
+
+        System.arraycopy(xValues, 0, newXValues, 0, insertPosition);
+        System.arraycopy(yValues, 0, newYValues, 0, insertPosition);
+
+        newXValues[insertPosition] = x;
+        newYValues[insertPosition] = y;
+
+        System.arraycopy(xValues, insertPosition, newXValues, insertPosition + 1, count - insertPosition);
+        System.arraycopy(yValues, insertPosition, newYValues, insertPosition + 1, count - insertPosition);
+
+        this.xValues = newXValues;
+        this.yValues = newYValues;
+        this.count++;
     }
 
     @Override
