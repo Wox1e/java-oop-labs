@@ -4,8 +4,8 @@ import functions.ConstantFunction;
 import functions.LinkedListTabulatedFunction;
 import functions.TabulatedFunction;
 
-public class ReadWriteTaskExecutor extends Thread{
-    static void main(String[] args) {
+public class ReadWriteTaskExecutor {
+    public static void main(String[] args) throws InterruptedException {
         Object object = new Object();
         ConstantFunction constantFunction = new ConstantFunction(-1);
         TabulatedFunction function = new LinkedListTabulatedFunction(constantFunction, 1, 1000, 1000);
@@ -17,6 +17,7 @@ public class ReadWriteTaskExecutor extends Thread{
         Thread writeThread = new Thread(writeTask);
 
         writeThread.start();
+        Thread.sleep(50);
         readThread.start();
     }
 }
