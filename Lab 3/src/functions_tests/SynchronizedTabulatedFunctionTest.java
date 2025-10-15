@@ -125,31 +125,26 @@ class SynchronizedTabulatedFunctionTest {
     void testIterator() {
         Iterator<Point> iterator = syncFunction.iterator();
 
-        // Проверяем первую точку
         assertTrue(iterator.hasNext());
         Point point1 = iterator.next();
         assertEquals(1.0, point1.x, 1e-9);
         assertEquals(10.0, point1.y, 1e-9);
 
-        // Проверяем вторую точку
         assertTrue(iterator.hasNext());
         Point point2 = iterator.next();
         assertEquals(2.0, point2.x, 1e-9);
         assertEquals(20.0, point2.y, 1e-9);
 
-        // Проверяем третью точку
         assertTrue(iterator.hasNext());
         Point point3 = iterator.next();
         assertEquals(3.0, point3.x, 1e-9);
         assertEquals(30.0, point3.y, 1e-9);
 
-        // Проверяем четвертую точку
         assertTrue(iterator.hasNext());
         Point point4 = iterator.next();
         assertEquals(4.0, point4.x, 1e-9);
         assertEquals(40.0, point4.y, 1e-9);
 
-        // Проверяем конец итерации
         assertFalse(iterator.hasNext());
         assertThrows(NoSuchElementException.class, iterator::next);
     }
