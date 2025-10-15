@@ -5,7 +5,7 @@ import functions.LinkedListTabulatedFunction;
 import functions.TabulatedFunction;
 
 public class ReadWriteTaskExecutor {
-    public static void main(String[] args) throws InterruptedException {
+    static void main(String[] args) throws InterruptedException {
         Object object = new Object();
         ConstantFunction constantFunction = new ConstantFunction(-1);
         TabulatedFunction function = new LinkedListTabulatedFunction(constantFunction, 1, 1000, 1000);

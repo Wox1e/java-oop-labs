@@ -96,20 +96,26 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
     @Override
-    public double getX(int index) throws IllegalArgumentException {
+    public double getX(int index) throws IndexOutOfBoundsException {
         if (index < 0 || index >= count) {
-            throw new IllegalArgumentException("Index " + index + " is out of range");
+            throw new IndexOutOfBoundsException("Index " + index + " is out of range");
         }
         return getNode(index).x;
     }
 
     @Override
     public double getY(int index){
+        if (index < 0 || index >= count) {
+            throw new IndexOutOfBoundsException("Index " + index + " is out of range");
+        }
         return getNode(index).y;
     }
 
     @Override
-    public void setY(int index, double value){
+    public void setY(int index, double value) throws IndexOutOfBoundsException {
+        if (index < 0 || index >= count) {
+            throw new IndexOutOfBoundsException("Index " + index + " is out of range");
+        }
         getNode(index).y = value;
     }
 
