@@ -23,7 +23,7 @@ public class LinkedListTabulatedFunctionTest {
     @Test
     public void getX() {
         assertEquals(2, lst.getX(1));
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()->lst.getX(-1));
+        IndexOutOfBoundsException exception = assertThrows(IndexOutOfBoundsException.class, ()->lst.getX(-1));
     }
 
     @Test
