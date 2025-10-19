@@ -1,9 +1,11 @@
 package operations_tests;
 
+import concurrent.SynchronizedTabulatedFunction;
 import functions.ArrayTabulatedFunction;
 import functions.LinkedListTabulatedFunction;
 import functions.Point;
 import functions.TabulatedFunction;
+import operations.TabulatedDifferentialOperator;
 import operations.TabulatedFunctionOperationService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
@@ -76,6 +78,28 @@ class TabulatedFunctionOperationServiceTest {
 
         assertEquals(newFunc2.apply(0), ((func.apply(0) - func2.apply(0)) - func3.apply(0)), 10e-3);
         assertEquals(newFunc2.apply(5), ((func.apply(5) - func2.apply(5)) - func3.apply(5)), 10e-3);
+    }
+
+
+    @Test
+    void testSyncDerive(){
+        double[] xVals = {1,2,3,4};
+        double[] yVals = {2, 4, 6, 8};
+        TabulatedFunction func = new ArrayTabulatedFunction(xVals, yVals);
+        SynchronizedTabulatedFunction synchronizedFunc = new SynchronizedTabulatedFunction(func);
+        TabulatedDifferentialOperator operator = new TabulatedDifferentialOperator();
+
+        TabulatedFunction syncDerivedFunction = operator.deriveSynchronously(synchronizedFunc);
+        TabulatedFunction derivedFunction = operator.derive(synchronizedFunc);
+
+        for (int i = 0; i < syncDerivedFunction.getCount() - 1; i++) {
+            assertEquals(derivedFunction.getY(i), syncDerivedFunction.getY(i));
+            assertEquals(derivedFunction.getX(i), syncDerivedFunction.getX(i));
+
+        }
+
+
+
     }
 
 }
