@@ -13,8 +13,10 @@ public class MultiplyingTask implements Runnable{
     @Override
     public void run() {
         for (int i = 0; i < function.getCount(); i++) {
-            double currentY = function.getY(i);
-            function.setY(i, currentY*2);
+            synchronized (function) {
+                double currentY = function.getY(i);
+                function.setY(i, currentY * 2);
+            }
         }
         System.out.println("Поток MultiplyingTask завершил работу");
     }
