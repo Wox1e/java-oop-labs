@@ -21,6 +21,31 @@ class SynchronizedTabulatedFunctionTest {
     }
 
     @Test
+    void testDoSync(){
+        double syncResult = syncFunction.doSynchronously(SynchronizedTabulatedFunction::getCount);
+        double result = baseFunction.getCount();
+        assertEquals(result, syncResult);
+
+        var nillResult = syncFunction.doSynchronously(new SynchronizedTabulatedFunction.Operation<Object>() {
+                                         @Override
+                                         public Object apply(SynchronizedTabulatedFunction syncFunc) {
+                                             return null;
+                                         }
+                                     });
+        assertNull(nillResult);
+
+        double multiFunc = (double) syncFunction.doSynchronously(new SynchronizedTabulatedFunction.Operation<Object>() {
+            @Override
+            public Object apply(SynchronizedTabulatedFunction syncFunc) {
+                syncFunc.setY(0, 52.68);
+                return syncFunc.getY(0);
+            }
+        });
+
+        assertEquals(52.68, multiFunc);
+    }
+
+    @Test
     void testGetCount() {
         assertEquals(4, syncFunction.getCount());
     }
