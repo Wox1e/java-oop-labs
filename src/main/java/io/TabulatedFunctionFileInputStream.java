@@ -5,15 +5,18 @@ import functions.factory.ArrayTabulatedFunctionFactory;
 import functions.factory.LinkedListTabulatedFunctionFactory;
 import functions.factory.TabulatedFunctionFactory;
 import operations.TabulatedDifferentialOperator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 
 public class TabulatedFunctionFileInputStream {
-    static void main(String[] args) {
+    private static final Logger logger = LogManager.getLogger(TabulatedFunctionFileInputStream.class);
+    public static void main(String[] args) {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("input/binary function.bin"))) {
             TabulatedFunctionFactory factory = new ArrayTabulatedFunctionFactory();
             TabulatedFunction function = FunctionsIO.readTabulatedFunction(bufferedInputStream, factory);
-            System.out.println(function.toString());
+            logger.info(function.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,8 +29,8 @@ public class TabulatedFunctionFileInputStream {
             TabulatedFunction function1 = FunctionsIO.readTabulatedFunction(reader, factory1);
             TabulatedDifferentialOperator operator = new TabulatedDifferentialOperator();
             TabulatedFunction derivative = operator.derive(function1);
-            System.out.println("Производная функции:");
-            System.out.println(derivative.toString());
+            logger.info("Производная функции:");
+            logger.info(derivative.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }

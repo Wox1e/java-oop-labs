@@ -3,10 +3,13 @@ package io;
 import functions.ArrayTabulatedFunction;
 import functions.TabulatedFunction;
 import operations.TabulatedDifferentialOperator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 
 public class ArrayTabulatedFunctionSerialization {
+    private static final Logger logger = LogManager.getLogger(ArrayTabulatedFunctionSerialization.class);
     public static void main(String [] args){
         try (FileOutputStream fileOutputStream = new FileOutputStream("output/serialized_array_functions.bin");
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
@@ -39,9 +42,9 @@ public class ArrayTabulatedFunctionSerialization {
             TabulatedFunction diffFunc = FunctionsIO.deserialize(bufferedInputStream);
             TabulatedFunction diffFunc2 = FunctionsIO.deserialize(bufferedInputStream);
 
-            System.out.println("Func -> " + func);
-            System.out.println("diffFunc -> " + diffFunc);
-            System.out.println("diffFunc2 -> " + diffFunc2);
+            logger.info("Func -> " + func);
+            logger.info("diffFunc -> " + diffFunc);
+            logger.info("diffFunc2 -> " + diffFunc2);
 
         } catch (FileNotFoundException e) {
             throw new RuntimeException("File not found");

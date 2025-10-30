@@ -4,11 +4,14 @@ import functions.*;
 import functions.factory.ArrayTabulatedFunctionFactory;
 import functions.factory.LinkedListTabulatedFunctionFactory;
 import functions.factory.TabulatedFunctionFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 
 
 public class TabulatedFunctionFileReader {
+    private static final Logger logger = LogManager.getLogger(TabulatedFunctionFileReader.class);
     public static void main(String[] args){
         try (FileReader arrayReader = new FileReader("input/function.txt");
              BufferedReader arrayBufferedReader = new BufferedReader(arrayReader);
@@ -22,8 +25,8 @@ public class TabulatedFunctionFileReader {
             TabulatedFunction arrayFunc = FunctionsIO.readTabulatedFunction(arrayBufferedReader, arrayFactory);
             TabulatedFunction listFunc = FunctionsIO.readTabulatedFunction(listBufferedReader, listFactory);
 
-            System.out.println("Array Func -> " + arrayFunc);
-            System.out.println("List Func -> " + listFunc);
+            logger.info("Array Func -> " + arrayFunc);
+            logger.info("List Func -> " + listFunc);
 
        } catch (FileNotFoundException e) {
            throw new RuntimeException("Файл не найден");

@@ -3,10 +3,13 @@ package io;
 import functions.LinkedListTabulatedFunction;
 import functions.TabulatedFunction;
 import operations.TabulatedDifferentialOperator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 
 public class LinkedListTabulatedFunctionSerialization {
+    private static final Logger logger = LogManager.getLogger(LinkedListTabulatedFunctionSerialization.class);
     static void main(String[] args) {
         try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(
                 new FileOutputStream("output/serialized linked list functions.bin"))) {
@@ -34,9 +37,9 @@ public class LinkedListTabulatedFunctionSerialization {
             TabulatedFunction deserializedFunc2 = FunctionsIO.deserialize(bufferedInputStream);
             TabulatedFunction deserializedFunc3 = FunctionsIO.deserialize(bufferedInputStream);
 
-            System.out.println(deserializedFunc1.toString());
-            System.out.println(deserializedFunc2.toString());
-            System.out.println(deserializedFunc3.toString());
+            logger.info(deserializedFunc1.toString());
+            logger.info(deserializedFunc2.toString());
+            logger.info(deserializedFunc3.toString());
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

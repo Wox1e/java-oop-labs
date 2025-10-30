@@ -1,9 +1,12 @@
 package concurrent;
 
 import functions.TabulatedFunction;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class WriteTask implements Runnable {
     private final TabulatedFunction function;
+    private static final Logger logger = LogManager.getLogger(WriteTask.class);
     private final double value;
     private final Object object;
 
@@ -18,7 +21,7 @@ public class WriteTask implements Runnable {
         for (int i = 0; i < function.getCount(); i++) {
             synchronized (object) {
                 function.setY(i, value);
-                System.out.printf("Writing for index %d complete\n", i);
+                logger.info("Writing for index {} complete\n", i);
             }
         }
     }
