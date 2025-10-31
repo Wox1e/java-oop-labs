@@ -2,8 +2,8 @@ package com.oop.labs_tests.dao;
 
 import com.oop.labs.manual.dao.FunctionDao;
 import com.oop.labs.manual.dao.UserDao;
-import com.oop.labs.manual.pojo.Function;
-import com.oop.labs.manual.pojo.User;
+import com.oop.labs.manual.dto.Function;
+import com.oop.labs.manual.dto.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

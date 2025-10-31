@@ -1,7 +1,7 @@
 package com.oop.labs_tests.dao;
 
 import com.oop.labs.manual.dao.UserDao;
-import com.oop.labs.manual.pojo.User;
+import com.oop.labs.manual.dto.User;
 import org.junit.jupiter.api.*;
 
 

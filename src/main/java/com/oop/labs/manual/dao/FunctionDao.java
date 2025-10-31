@@ -1,6 +1,6 @@
 package com.oop.labs.manual.dao;
 
-import com.oop.labs.manual.pojo.Function;
+import com.oop.labs.manual.dto.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,10 +143,12 @@ public class FunctionDao {
 
     private Function resultSetToFunction(ResultSet rs) {
         try {
+            logger.info("Пытаемся создать DTO Function на основе данных из БД");
             int id = rs.getInt("id");
             String name = rs.getString("name");
             String type = rs.getString("type");
             int authorId = rs.getInt("author_id");
+            logger.info("DTO Function успешно создано");
             return new Function(id, name, type, authorId);
         } catch (SQLException e) {
             throw new RuntimeException(e);

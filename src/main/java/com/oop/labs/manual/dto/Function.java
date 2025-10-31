@@ -1,4 +1,4 @@
-package com.oop.labs.manual.pojo;
+package com.oop.labs.manual.dto;
 
 public class Function {
     private int id;

@@ -1,10 +1,9 @@
 package com.oop.labs.manual.dao;
 
-import com.oop.labs.manual.pojo.Point;
+import com.oop.labs.manual.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,10 +142,12 @@ public class PointDao {
 
     private Point resultSetToPoint(ResultSet rs) {
         try {
+            logger.info("Создаём DTO Point на основе данных из БД");
             long id = rs.getLong("id");
             int functionId = rs.getInt("function_id");
             double xValue = rs.getDouble("x_value");
             double yValue = rs.getDouble("y_value");
+            logger.info("DTO Point успешно создано");
             return new Point(id, functionId, xValue, yValue);
         } catch (SQLException e) {
             throw new RuntimeException(e);

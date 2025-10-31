@@ -1,12 +1,10 @@
 package com.oop.labs.manual.dao;
 
 
-import com.oop.labs.manual.pojo.User;
+import com.oop.labs.manual.dto.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,9 +95,11 @@ public class UserDao {
 
     public User ResultSetToUser(ResultSet rs){
         try {
+            logger.info("Создаём DTO User на основе данных из БД");
             String username = rs.getString("username");
             String passwordHash = rs.getString("password_hash");
             int id = rs.getInt("id");
+            logger.info("DTO User успешно создан");
             return new User(id, username, passwordHash);
         } catch (SQLException e) {
             throw new RuntimeException(e);
