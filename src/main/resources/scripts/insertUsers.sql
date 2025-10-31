@@ -1,2 +1,2 @@
-INSERT INTO users (id, username, password_hash)
-VALUES (?, ?, ?)
+INSERT INTO users (username, password_hash)
+VALUES (?, ?)

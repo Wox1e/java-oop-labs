@@ -1,4 +1,4 @@
-package com.oop.labs;
+package com.oop.labs_tests;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
