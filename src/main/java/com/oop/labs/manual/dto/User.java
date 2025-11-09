@@ -20,6 +20,10 @@ public class User {
         this.username = username;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public int getId() {
         return id;
     }

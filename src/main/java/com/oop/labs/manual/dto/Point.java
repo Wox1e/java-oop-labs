@@ -52,4 +52,25 @@ public class Point {
         this.yValue = yValue;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        Point point;
+
+        try {
+            point = (Point) obj;
+        } catch (ClassCastException e) {
+            return false;
+        }
+
+
+        return functionId == point.functionId &&
+                Double.compare(point.xValue, xValue) == 0 &&
+                Double.compare(point.yValue, yValue) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(functionId, xValue, yValue);
+    }
+
 }

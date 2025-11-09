@@ -6,6 +6,7 @@ import com.oop.labs.manual.dao.UserDao;
 import com.oop.labs.manual.dto.Function;
 import com.oop.labs.manual.dto.Point;
 import com.oop.labs.manual.dto.User;
+import com.oop.labs_tests.MockDBConnection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,11 +31,8 @@ public class PointDaoTest {
 
     @BeforeAll
     static void setup() {
-        try {
-            testConnection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "mysecretpassword");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+
+        testConnection = MockDBConnection.getTestConnection();
 
         pointDao = new PointDao(testConnection);
         functionDao = new FunctionDao(testConnection);

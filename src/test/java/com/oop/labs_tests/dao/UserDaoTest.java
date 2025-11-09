@@ -2,6 +2,7 @@ package com.oop.labs_tests.dao;
 
 import com.oop.labs.manual.dao.UserDao;
 import com.oop.labs.manual.dto.User;
+import com.oop.labs_tests.MockDBConnection;
 import org.junit.jupiter.api.*;
 
 
@@ -21,11 +22,8 @@ public class UserDaoTest {
 
     @BeforeAll
     static void setup(){
-        try {
-            testConnection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "mysecretpassword");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+
+        testConnection = MockDBConnection.getTestConnection();
 
         userDao = new UserDao(testConnection);
         try {

@@ -93,6 +93,26 @@ public class UserDao {
         return users;
     }
 
+    public List<User> findAllOrderedBy(String field, boolean isReversed) {
+        String direction = isReversed ? "DESC" : "ASC";
+        logger.info("Поиск всех пользователей с сортировкой по полю: {} направление: {}", field, direction);
+        List<User> users = new ArrayList<>();
+        
+        String sql = "SELECT * FROM users ORDER BY " + field + " " + direction;
+
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                users.add(ResultSetToUser(rs));
+            }
+            logger.info("Найдено пользователей с сортировкой: {}", users.size());
+        } catch (SQLException e) {
+            logger.error("Ошибка поиска всех пользователей с сортировкой", e);
+        }
+        return users;
+    }
+
     public User ResultSetToUser(ResultSet rs){
         try {
             logger.info("Создаём DTO User на основе данных из БД");

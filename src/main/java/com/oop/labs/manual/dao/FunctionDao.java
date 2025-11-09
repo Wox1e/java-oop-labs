@@ -105,6 +105,48 @@ public class FunctionDao {
         return functions;
     }
 
+    public List<Function> findAllOrderedBy(String field, boolean isReversed) {
+        String direction = isReversed ? "DESC" : "ASC";
+        logger.info("Поиск всех функций с сортировкой по полю: {} направление: {}", field, direction);
+        List<Function> functions = new ArrayList<>();
+
+        String sql = "SELECT * FROM functions ORDER BY " + field + " " + direction;
+
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                functions.add(resultSetToFunction(rs));
+            }
+            logger.info("Найдено функций с сортировкой: {}", functions.size());
+        } catch (SQLException e) {
+            logger.error("Ошибка поиска всех функций с сортировкой", e);
+        }
+        return functions;
+    }
+
+
+    public List<Function> findByAuthorIdOrderedBy(int authorId, String field, boolean isReversed) {
+        String direction = isReversed ? "DESC" : "ASC";
+        logger.info("Поиск функций по author_id: {} с сортировкой по полю: {} направление: {}", authorId, field, direction);
+        List<Function> functions = new ArrayList<>();
+        
+        String sql = "SELECT * FROM functions WHERE author_id = ? ORDER BY " + field + " " + direction;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, authorId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                functions.add(resultSetToFunction(rs));
+            }
+            logger.info("Найдено функций с сортировкой: {}", functions.size());
+        } catch (SQLException e) {
+            logger.error("Ошибка поиска функций по author_id с сортировкой", e);
+        }
+        return functions;
+    }
+
     public boolean update(Function function) {
         String sql = "UPDATE functions SET name = ?, type = ?, author_id = ? WHERE id = ?";
 

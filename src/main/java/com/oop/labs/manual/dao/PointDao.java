@@ -88,6 +88,48 @@ public class PointDao {
         return points;
     }
 
+    public List<Point> findAllOrderedBy(String field, boolean isReversed) {
+        String direction = isReversed ? "DESC" : "ASC";
+        logger.info("Поиск всех точек с сортировкой по полю: {} направление: {}", field, direction);
+        List<Point> points = new ArrayList<>();
+        
+        String sql = "SELECT * FROM points ORDER BY " + field + " " + direction;
+
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                points.add(resultSetToPoint(rs));
+            }
+            logger.info("Найдено точек с сортировкой: {}", points.size());
+        } catch (SQLException e) {
+            logger.error("Ошибка поиска всех точек с сортировкой", e);
+        }
+        return points;
+    }
+
+    public List<Point> findByFunctionIdOrderedBy(int functionId, String field, boolean isReversed) {
+        String direction = isReversed ? "DESC" : "ASC";
+        logger.info("Поиск точек по function_id: {} с сортировкой по полю: {} направление: {}", functionId, field, direction);
+        List<Point> points = new ArrayList<>();
+        
+
+        String sql = "SELECT * FROM points WHERE function_id = ? ORDER BY " + field + " " + direction;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, functionId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                points.add(resultSetToPoint(rs));
+            }
+            logger.info("Найдено точек с сортировкой: {}", points.size());
+        } catch (SQLException e) {
+            logger.error("Ошибка поиска точек по function_id с сортировкой", e);
+        }
+        return points;
+    }
+
     public boolean update(Point point) {
         String sql = "UPDATE points SET function_id = ?, x_value = ?, y_value = ? WHERE id = ?";
 
