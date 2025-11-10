@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class UserDAO implements UserDAOInterface {
+public class UserDAO {
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
     private final Connection connection;
 
@@ -17,7 +17,6 @@ public class UserDAO implements UserDAOInterface {
         this.connection = connection;
     }
 
-    @Override
     public UUID create(UserEntity user) {
 
         String query = "INSERT INTO users (username, password_hash) VALUES (?, ?) RETURNING id";
@@ -40,7 +39,6 @@ public class UserDAO implements UserDAOInterface {
         return null;
     }
 
-    @Override
     public UserEntity findById(UUID id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         try(PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -57,7 +55,6 @@ public class UserDAO implements UserDAOInterface {
         return null;
     }
 
-    @Override
     public UserEntity findByUsername(String username) {
         String sql = "SELECT * FROM users WHERE username = ?";
         try(PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -75,7 +72,6 @@ public class UserDAO implements UserDAOInterface {
         return null;
     }
 
-    @Override
     public List<UserEntity> findAll() {
         List<UserEntity> users = new ArrayList<>();
         String sql = "SELECT * FROM users";
@@ -91,7 +87,6 @@ public class UserDAO implements UserDAOInterface {
         return List.of();
     }
 
-    @Override
     public List<UserEntity> findAllOrderedBy(String field, boolean isReversed) {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск всех пользователей с сортировкой по полю: {} направление: {}", field, direction);
