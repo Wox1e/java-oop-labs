@@ -16,6 +16,13 @@ public class PointEntity {
     private double x_value;
     private double y_value;
 
+    public PointEntity(UUID id, UUID function_id, double x_value, double y_value) {
+        this.id = id;
+        this.function_id = function_id;
+        this.x_value = x_value;
+        this.y_value = y_value;
+    }
+
     public UUID getId(){
         return this.id;
     }

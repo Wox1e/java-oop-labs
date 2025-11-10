@@ -14,8 +14,14 @@ public class FunctionEntity {
     private UUID id;
     private String name;
     private String type;
-    private Long author_id;
+    private UUID author_id;
 
+    public FunctionEntity(UUID id, String name, String type, UUID author_id) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.author_id = author_id;
+    }
 
     public UUID getId(){
         return this.id;
@@ -29,7 +35,7 @@ public class FunctionEntity {
         return this.type;
     }
 
-    public Long getAuthor_id() {
+    public UUID getAuthor_id() {
         return this.author_id;
     }
 
@@ -46,7 +52,7 @@ public class FunctionEntity {
         this.type = type;
     }
 
-    public void setPassword_hash(Long author_id) {
+    public void setPassword_hash(UUID author_id) {
         this.author_id = author_id;
     }
 }
