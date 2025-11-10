@@ -8,13 +8,18 @@ import jakarta.persistence.Id;
 import java.util.UUID;
 
 @Entity
-public class userEntity {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
     private UUID id;
     private String username;
-    private Long password_hash;
+    private String password_hash;
 
+    public UserEntity(UUID id, String username, String password_hash) {
+        this.id = id;
+        this.username = username;
+        this.password_hash = password_hash;
+    }
 
     public UUID getId(){
         return this.id;
@@ -24,7 +29,7 @@ public class userEntity {
         return this.username;
     }
 
-    public Long getPassword_hash(){
+    public String getPassword_hash(){
         return this.password_hash;
     }
 
@@ -37,7 +42,7 @@ public class userEntity {
         this.username = username;
     }
 
-    public void setPassword_hash(Long password_hash) {
+    public void setPassword_hash(String password_hash) {
         this.password_hash = password_hash;
     }
 }
