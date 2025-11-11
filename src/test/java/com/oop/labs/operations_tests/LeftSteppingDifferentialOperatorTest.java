@@ -1,0 +1,26 @@
+package com.oop.labs.operations_tests;
+
+import com.oop.labs.functions.ConstantFunction;
+import com.oop.labs.functions.MathFunction;
+import com.oop.labs.operations.LeftSteppingDifferentialOperator;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class LeftSteppingDifferentialOperatorTest {
+
+    @Test
+    void testDerive() {
+        LeftSteppingDifferentialOperator diffOperator = new LeftSteppingDifferentialOperator(10e-3);
+        MathFunction func = new ConstantFunction(5);
+        assertEquals(0, diffOperator.derive(func).apply(45));
+
+        MathFunction linearFunc = (x) -> 5*x;
+        assertEquals(5, diffOperator.derive(linearFunc).apply(228), 10e-3);
+
+        MathFunction squaredFunc = (x) -> Math.pow(x, 2);
+        double x = 5.89;
+        assertEquals(2*x, diffOperator.derive(squaredFunc).apply(x), 10e-2);
+
+    }
+}

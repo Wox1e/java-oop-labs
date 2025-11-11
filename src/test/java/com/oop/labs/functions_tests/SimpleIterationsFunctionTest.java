@@ -1,0 +1,28 @@
+package com.oop.labs.functions_tests;
+
+import com.oop.labs.functions.MathFunction;
+import com.oop.labs.functions.SimpleIterationsFunction;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class SimpleIterationsFunctionTest {
+
+    @Test
+    void linearEquasionTest() {
+        MathFunction linearFunc = (x) -> 2;        // x = 2
+        double accuracy = 0.0001;
+        MathFunction simpleIterationFunc = new SimpleIterationsFunction(accuracy, linearFunc);
+        assertEquals(2, simpleIterationFunc.apply(0));
+    }
+
+    @Test
+    void squaredEquasionTest() {
+        MathFunction squaredFunc = (x) -> (x + 2/x)/2;        // x = (x + 2/x)/2
+        double accuracy = 0.001;
+        MathFunction simpleIterationFunc = new SimpleIterationsFunction(accuracy, squaredFunc);
+        double res = simpleIterationFunc.apply(1);
+        double target = 1.4167;
+        assertEquals( target, res, 0.01);
+    }
+}
