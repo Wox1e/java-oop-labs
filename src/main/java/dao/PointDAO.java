@@ -17,24 +17,30 @@ public class PointDAO implements PointDAOInterface{
 
     @Override
     public UUID create(PointEntity point) {
-        String query = "INSERT INTO points (function_id, x_value, y_value) VALUES (?, ?, ?) RETURNING id";
+        String query = "INSERT INTO points (function_id, x_value, y_value) VALUES (?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setObject(1, point.getFunction_id());
             stmt.setDouble(2, point.getX_value());
             stmt.setDouble(3, point.getY_value());
 
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                UUID id = rs.getObject("id", UUID.class);
-                logger.info("Создана точка с id: {}", id);
-                return id;
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Ошибка создания точки, строки не получены");
+            }
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    UUID id = generatedKeys.getObject(1, UUID.class);
+                    logger.info("Создана точка с id: {}", id);
+                    return id;
+                } else {
+                    throw new SQLException("Ошибка создания точки, id не получен");
+                }
             }
         } catch (SQLException e) {
             logger.error("Ошибка создания точки", e);
             throw new RuntimeException("Ошибка создания точки", e);
         }
-        return null;
     }
 
     @Override

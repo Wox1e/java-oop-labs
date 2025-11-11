@@ -18,24 +18,31 @@ public class UserDAO implements UserDAOInterface{
     @Override
     public UUID create(UserEntity user) {
 
-        String query = "INSERT INTO users (username, password_hash) VALUES (?, ?) RETURNING id";
+        String query = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword_hash());
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()) {
-                UUID id = rs.getObject("id", UUID.class);
-                logger.info("Создан пользователь с id: {}", id);
-                return id;
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Ошибка создания пользователя");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    UUID id = generatedKeys.getObject(1, UUID.class);
+                    logger.info("Создан пользователь с id: {}", id);
+                    return id;
+                } else {
+                    throw new SQLException("Ошибка создания пользователя, id не получен");
+                }
             }
 
         } catch (SQLException e) {
             logger.error("Ошибка создания пользователя", e);
             throw new RuntimeException("Ошибка создания пользователя", e);
         }
-        return null;
     }
 
     @Override

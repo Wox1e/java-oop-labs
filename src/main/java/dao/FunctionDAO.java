@@ -16,24 +16,31 @@ public class FunctionDAO implements FunctionDAOInterface{
     }
 
     public UUID create(FunctionEntity function) {
-        String query = "INSERT INTO functions (name, type, author_id) VALUES (?, ?, ?) RETURNING id";
+        String query = "INSERT INTO functions (name, type, author_id) VALUES (?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, function.getName());
             stmt.setString(2, function.getType());
             stmt.setObject(3, function.getAuthor_id());
 
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                UUID id = rs.getObject("id", UUID.class);
-                logger.info("Создана функция с id: {}", id);
-                return id;
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Ошибка создания функции, нет полученных строк");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    UUID id = generatedKeys.getObject(1, UUID.class);
+                    logger.info("Создана функция с id: {}", id);
+                    return id;
+                } else {
+                    throw new SQLException("Ошибка создания функции, нет полученного id");
+                }
             }
         } catch (SQLException e) {
             logger.error("Ошибка создания функции", e);
             throw new RuntimeException("Ошибка создания функции", e);
         }
-        return null;
     }
 
     @Override
@@ -93,10 +100,10 @@ public class FunctionDAO implements FunctionDAOInterface{
     @Override
     public List<FunctionEntity> findAll() {
         List<FunctionEntity> functions = new ArrayList<>();
-        String sql = "SELECT * FROM functions";
+        String query = "SELECT * FROM functions";
 
-        try (Statement stmt = connection.createStatement()) {
-            ResultSet rs = stmt.executeQuery(sql);
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 functions.add(resultSetToFunction(rs));
