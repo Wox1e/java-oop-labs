@@ -1,11 +1,11 @@
 package com.oop.labs.search;
 
-import dao.FunctionDAO;
-import dao.PointDAO;
-import dao.UserDAO;
-import entities.FunctionEntity;
-import entities.PointEntity;
-import entities.UserEntity;
+import com.oop.labs.repositories.FunctionRepository;
+import com.oop.labs.repositories.PointRepository;
+import com.oop.labs.repositories.UserRepository;
+import com.oop.labs.entities.functionEntity;
+import com.oop.labs.entities.pointEntity;
+import com.oop.labs.entities.userEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,36 +14,36 @@ import java.util.List;
 
 public class BreadthFirstSearch {
 
-    private final UserDAO userDAO;
-    private final FunctionDAO functionDAO;
-    private final PointDAO pointDAO;
+    private final UserRepository userRepository;
+    private final FunctionRepository functionRepository;
+    private final PointRepository pointRepository;
     private static final Logger logger = LogManager.getLogger(BreadthFirstSearch.class);
 
-    public BreadthFirstSearch(UserDAO UserDAO, FunctionDAO functionDAO, PointDAO pointDAO) {
-        this.userDAO = UserDAO;
-        this.functionDAO = functionDAO;
-        this.pointDAO = pointDAO;
+    public BreadthFirstSearch(UserRepository userRepository, FunctionRepository functionRepository, PointRepository pointRepository) {
+        this.userRepository = userRepository;
+        this.functionRepository = functionRepository;
+        this.pointRepository = pointRepository;
     }
 
     public List<Object> findAll() {
         logger.info("Поиск по всем данным в ширину (BFS)");
 
-        List<UserEntity> users = userDAO.findAll();
+        List<userEntity> users = userRepository.findAll();
         logger.info("Найдено пользователей: {}", users.size());
         List<Object> result = new LinkedList<>(users);
 
-        List<FunctionEntity> allFunctions = new LinkedList<>();
-        for (UserEntity user : users) {
-            List<FunctionEntity> userFunctions = functionDAO.findByAuthorId(user.getId());
+        List<functionEntity> allFunctions = new LinkedList<>();
+        for (userEntity user : users) {
+            List<functionEntity> userFunctions = functionRepository.findByAuthorId(user.getId());
             logger.info("Для пользователя {} найдено функций: {}", user.getUsername(), userFunctions.size());
             allFunctions.addAll(userFunctions);
         }
         logger.info("Всего функций собрано: {}", allFunctions.size());
         result.addAll(allFunctions);
 
-        List<PointEntity> allPoints = new LinkedList<>();
-        for (FunctionEntity function : allFunctions) {
-            List<PointEntity> functionPoints = pointDAO.findByFunctionId(function.getId());
+        List<pointEntity> allPoints = new LinkedList<>();
+        for (functionEntity function : allFunctions) {
+            List<pointEntity> functionPoints = pointRepository.findByFunctionId(function.getId());
             logger.info("Для функции {} найдено точек: {}", function.getName(), functionPoints.size());
             allPoints.addAll(functionPoints);
         }
@@ -54,18 +54,18 @@ public class BreadthFirstSearch {
         return result;
     }
 
-    public List<Object> findAllForUser(UserEntity user) {
+    public List<Object> findAllForUser(userEntity user) {
         logger.info("Поиск в ширину для пользователя с ID {}", user.getId());
         List<Object> result = new LinkedList<>();
         result.add(user);
 
-        List<FunctionEntity> functions = functionDAO.findByAuthorId(user.getId());
+        List<functionEntity> functions = functionRepository.findByAuthorId(user.getId());
         logger.info("Найдено функций пользователя: {}", functions.size());
         result.addAll(functions);
 
-        List<PointEntity> userPoints = new LinkedList<>();
-        for (FunctionEntity function : functions) {
-            List<PointEntity> points = pointDAO.findByFunctionId(function.getId());
+        List<pointEntity> userPoints = new LinkedList<>();
+        for (functionEntity function : functions) {
+            List<pointEntity> points = pointRepository.findByFunctionId(function.getId());
             logger.info("Для функции {} найдено точек: {}", function.getName(), points.size());
             userPoints.addAll(points);
         }

@@ -44,7 +44,7 @@ class FunctionRepositoryTest {
 
     @Autowired
     private FunctionRepository functionRepository;
-    final Long ownerId = 11L;
+    final UUID ownerId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
