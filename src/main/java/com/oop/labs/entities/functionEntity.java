@@ -14,7 +14,7 @@ public class functionEntity {
     private UUID id;
     private String name;
     private String type;
-    private UUID author_id;
+    private UUID authorId;
 
 
     public UUID getId(){
@@ -41,11 +41,11 @@ public class functionEntity {
 
 
     public UUID getAuthor_id() {
-        return this.author_id;
+        return this.authorId;
     }
 
     public void setAuthor_id(UUID author_id) {
-        this.author_id = author_id;
+        this.authorId = author_id;
     }
 
 }

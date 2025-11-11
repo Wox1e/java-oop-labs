@@ -12,7 +12,7 @@ public class pointEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
     private UUID id;
-    private UUID function_id;
+    private UUID functionId;
     private double x_value;
     private double y_value;
 
@@ -26,11 +26,11 @@ public class pointEntity {
 
 
     public UUID getFunction_id(){
-        return this.function_id;
+        return this.functionId;
     }
 
     public void setFunction_id(UUID function_id) {
-        this.function_id = function_id;
+        this.functionId = function_id;
     }
 
 

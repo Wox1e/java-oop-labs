@@ -1,6 +1,9 @@
 package com.oop.labs.repository_tests;
 
 import com.oop.labs.entities.userEntity;
+import com.oop.labs.search.BreadthFirstSearch;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserRepositoryTest {
+
+    private static final Logger logger = LogManager.getLogger(UserRepositoryTest.class);
+
 
     @org.springframework.context.annotation.Configuration
     static class Config {}
@@ -138,7 +144,7 @@ class UserRepositoryTest {
         long start = System.currentTimeMillis();
         userRepository.saveAll(toSave);
         long elapsed = System.currentTimeMillis() - start;
-        System.out.println("Time to save 15k records: " + elapsed + " ms");
+        logger.info("Time to save 15k records: " + elapsed + " ms");
     }
 
     @Test
@@ -156,8 +162,8 @@ class UserRepositoryTest {
         long start = System.currentTimeMillis();
         userRepository.deleteAll(all);
         long elapsed = System.currentTimeMillis() - start;
-        System.out.println("ds to delete 15k users: " + elapsed + " ms");
-        assertEquals(userRepository.count(), 0);
+        logger.info("Time to delete 15k users: " + elapsed + " ms");
+        assertEquals(0, userRepository.count());
     }
 
     @Test
@@ -178,8 +184,13 @@ class UserRepositoryTest {
         long start = System.currentTimeMillis();
         userRepository.saveAll(all);
         long elapsed = System.currentTimeMillis() - start;
-        System.out.println("Time to update 15k users: " + elapsed + " ms");
-        assertThat(userRepository.findAll().stream().allMatch(u -> u.getPassword_hash().equals("pwB"))).isTrue();
+        logger.info("Time to update 15k users: " + elapsed + " ms");
+
+        List<userEntity> actual =  userRepository.findAll();
+        for (userEntity user : actual) {
+            assertEquals("pwB",  user.getPassword_hash());
+        }
+
     }
 
 }
