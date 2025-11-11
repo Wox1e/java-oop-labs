@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.*;
 
-public class FunctionDAO {
+public class FunctionDAO implements FunctionDAOInterface{
     private static final Logger logger = LoggerFactory.getLogger(FunctionDAO.class);
     private final Connection connection;
 
@@ -15,7 +15,7 @@ public class FunctionDAO {
         this.connection = connection;
     }
 
-    public int create(FunctionEntity function) {
+    public UUID create(FunctionEntity function) {
         String query = "INSERT INTO functions (name, type, author_id) VALUES (?, ?, ?) RETURNING id";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -25,7 +25,7 @@ public class FunctionDAO {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                int id = rs.getInt("id");
+                UUID id = rs.getObject("id", UUID.class);
                 logger.info("Создана функция с id: {}", id);
                 return id;
             }
@@ -33,14 +33,15 @@ public class FunctionDAO {
             logger.error("Ошибка создания функции", e);
             throw new RuntimeException("Ошибка создания функции", e);
         }
-        return -1;
+        return null;
     }
 
-    public Optional<FunctionEntity> findById(int id) {
+    @Override
+    public Optional<FunctionEntity> findById(UUID id) {
         String sql = "SELECT * FROM functions WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setObject(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 FunctionEntity function = resultSetToFunction(rs);
@@ -53,6 +54,7 @@ public class FunctionDAO {
         return Optional.empty();
     }
 
+    @Override
     public Optional<FunctionEntity> findByName(String name) {
         String sql = "SELECT * FROM functions WHERE name = ?";
 
@@ -70,12 +72,13 @@ public class FunctionDAO {
         return Optional.empty();
     }
 
-    public List<FunctionEntity> findByAuthorId(int authorId) {
+    @Override
+    public List<FunctionEntity> findByAuthorId(UUID authorId) {
         List<FunctionEntity> functions = new ArrayList<>();
         String sql = "SELECT * FROM functions WHERE author_id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, authorId);
+            stmt.setObject(1, authorId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -87,6 +90,7 @@ public class FunctionDAO {
         return functions;
     }
 
+    @Override
     public List<FunctionEntity> findAll() {
         List<FunctionEntity> functions = new ArrayList<>();
         String sql = "SELECT * FROM functions";
@@ -103,6 +107,7 @@ public class FunctionDAO {
         return functions;
     }
 
+    @Override
     public List<FunctionEntity> findAllOrderedBy(String field, boolean isReversed) {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск всех функций с сортировкой по полю: {} направление: {}", field, direction);
@@ -127,16 +132,19 @@ public class FunctionDAO {
         return functions;
     }
 
-
-    public List<FunctionEntity> findByAuthorIdOrderedBy(int authorId, String field, boolean isReversed) {
+    @Override
+    public List<FunctionEntity> findByAuthorIdOrderedBy(UUID authorId, String field, boolean isReversed) {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск функций по author_id: {} с сортировкой по полю: {} направление: {}", authorId, field, direction);
         List<FunctionEntity> functions = new ArrayList<>();
 
+        Set<String> allowed = Set.of("name", "type", "author_id", "id");
+        if (!allowed.contains(field)) throw new IllegalArgumentException();
+
         String sql = "SELECT * FROM functions WHERE author_id = ? ORDER BY " + field + " " + direction;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, authorId);
+            stmt.setObject(1, authorId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -149,6 +157,7 @@ public class FunctionDAO {
         return functions;
     }
 
+    @Override
     public boolean update(FunctionEntity function) {
         String sql = "UPDATE functions SET name = ?, type = ?, author_id = ? WHERE id = ?";
 
@@ -169,11 +178,12 @@ public class FunctionDAO {
         return false;
     }
 
-    public boolean delete(int id) {
+    @Override
+    public boolean delete(UUID id) {
         String sql = "DELETE FROM functions WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setObject(1, id);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 logger.info("Удалена функция с id: {}", id);

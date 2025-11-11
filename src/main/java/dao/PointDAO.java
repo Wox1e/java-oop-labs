@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.*;
 
-public class PointDAO {
+public class PointDAO implements PointDAOInterface{
     private static final Logger logger = LoggerFactory.getLogger(PointDAO.class);
     private final Connection connection;
 
@@ -15,7 +15,8 @@ public class PointDAO {
         this.connection = connection;
     }
 
-    public long create(PointEntity point) {
+    @Override
+    public UUID create(PointEntity point) {
         String query = "INSERT INTO points (function_id, x_value, y_value) VALUES (?, ?, ?) RETURNING id";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -25,7 +26,7 @@ public class PointDAO {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                long id = rs.getLong("id");
+                UUID id = rs.getObject("id", UUID.class);
                 logger.info("Создана точка с id: {}", id);
                 return id;
             }
@@ -33,9 +34,10 @@ public class PointDAO {
             logger.error("Ошибка создания точки", e);
             throw new RuntimeException("Ошибка создания точки", e);
         }
-        return -1;
+        return null;
     }
 
+    @Override
     public Optional<PointEntity> findById(UUID id) {
         String sql = "SELECT * FROM points WHERE id = ?";
 
@@ -53,12 +55,13 @@ public class PointDAO {
         return Optional.empty();
     }
 
-    public List<PointEntity> findByFunctionId(int functionId) {
+    @Override
+    public List<PointEntity> findByFunctionId(UUID functionId) {
         List<PointEntity> points = new ArrayList<>();
         String sql = "SELECT * FROM points WHERE function_id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, functionId);
+            stmt.setObject(1, functionId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -70,6 +73,7 @@ public class PointDAO {
         return points;
     }
 
+    @Override
     public List<PointEntity> findAll() {
         List<PointEntity> points = new ArrayList<>();
         String sql = "SELECT * FROM points";
@@ -86,10 +90,14 @@ public class PointDAO {
         return points;
     }
 
+    @Override
     public List<PointEntity> findAllOrderedBy(String field, boolean isReversed) {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск всех точек с сортировкой по полю: {} направление: {}", field, direction);
         List<PointEntity> points = new ArrayList<>();
+
+        Set<String> allowed = Set.of("x_value", "y_value", "function_id", "id");
+        if (!allowed.contains(field)) throw new IllegalArgumentException();
 
         String sql = "SELECT * FROM points ORDER BY " + field + " " + direction;
 
@@ -106,19 +114,20 @@ public class PointDAO {
         return points;
     }
 
-    public List<PointEntity> findByFunctionIdOrderedBy(int functionId, String field, boolean isReversed) {
+    @Override
+    public List<PointEntity> findByFunctionIdOrderedBy(UUID functionId, String field, boolean isReversed) {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск точек по function_id: {} с сортировкой по полю: {} направление: {}", functionId, field, direction);
         List<PointEntity> points = new ArrayList<>();
 
-        Set<String> allowed = Set.of("name", "type", "author_id", "id");
+        Set<String> allowed = Set.of("x_value", "y_value", "function_id", "id");
         if (!allowed.contains(field)) throw new IllegalArgumentException();
 
 
         String sql = "SELECT * FROM points WHERE function_id = ? ORDER BY " + field + " " + direction;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, functionId);
+            stmt.setObject(1, functionId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -131,6 +140,7 @@ public class PointDAO {
         return points;
     }
 
+    @Override
     public boolean update(PointEntity point) {
         String sql = "UPDATE points SET function_id = ?, x_value = ?, y_value = ? WHERE id = ?";
 
@@ -151,6 +161,7 @@ public class PointDAO {
         return false;
     }
 
+    @Override
     public boolean delete(UUID id) {
         String sql = "DELETE FROM points WHERE id = ?";
 
@@ -167,6 +178,7 @@ public class PointDAO {
         return false;
     }
 
+    @Override
     public boolean deleteByFunctionId(UUID functionId) {
         String sql = "DELETE FROM points WHERE function_id = ?";
 
