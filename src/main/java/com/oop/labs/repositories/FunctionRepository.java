@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface FunctionRepository extends JpaRepository<functionEntity, UUID> {
 
+    List<functionEntity> findByName(String name);
     List<functionEntity> findByAuthorId(UUID authorId);
-
-
+    List<functionEntity> findByType(String type);
 }

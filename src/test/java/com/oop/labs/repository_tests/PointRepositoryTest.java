@@ -84,8 +84,8 @@ class PointRepositoryTest {
         pointEntity saved = pointRepository.save(p);
         saved.setX_value(100.11);
         pointRepository.saveAndFlush(saved);
-        pointEntity updated = pointRepository.findById(saved.getId()).orElseThrow();
-        assertEquals(updated.getX_value(), 100.11);
+        Optional<pointEntity> updated = pointRepository.findById(saved.getId());
+        assertEquals(updated.get().getX_value(), 100.11);
     }
     @Test
     void shouldDeletePoint() {
@@ -99,4 +99,53 @@ class PointRepositoryTest {
         assertEquals(found, Optional.empty());
     }
 
+    @Test
+    void shouldFindPointsByFunctionId() {
+        UUID functionId = UUID.randomUUID();
+        for (int i = 0; i < 4; i++) {
+            pointEntity p = new pointEntity();
+            p.setFunction_id(functionId);
+            p.setX_value(i * 1.5);
+            p.setY_value(i * 2.5);
+            pointRepository.save(p);
+        }
+        pointEntity other = new pointEntity();
+        other.setFunction_id(UUID.randomUUID());
+        other.setX_value(99);
+        other.setY_value(199);
+        pointRepository.save(other);
+
+        List<pointEntity> result = pointRepository.findByFunctionId(functionId);
+        assertThat(result).hasSize(4);
+    }
+
+    @Test
+    void shouldFindPointsByXValue() {
+        UUID func = UUID.randomUUID();
+        double targetX = 4.2;
+        for (int i = 0; i < 3; i++) {
+            pointEntity p = new pointEntity();
+            p.setFunction_id(func);
+            p.setX_value(targetX);
+            p.setY_value(i);
+            pointRepository.save(p);
+        }
+        List<pointEntity> points = pointRepository.findByxValue(targetX);
+        assertThat(points).hasSize(3);
+    }
+
+    @Test
+    void shouldFindPointsByYValue() {
+        UUID func = UUID.randomUUID();
+        double targetY = 10.5;
+        for (int i = 0; i < 2; i++) {
+            pointEntity p = new pointEntity();
+            p.setFunction_id(func);
+            p.setX_value(i);
+            p.setY_value(targetY);
+            pointRepository.save(p);
+        }
+        List<pointEntity> points = pointRepository.findByyValue(targetY);
+        assertThat(points).hasSize(2);
+    }
 }

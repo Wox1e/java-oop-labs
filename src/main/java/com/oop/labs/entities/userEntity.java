@@ -13,7 +13,7 @@ public class userEntity {
     @GeneratedValue(strategy= GenerationType.UUID)
     private UUID id;
     private String username;
-    private String password_hash;
+    private String passwordHash;
 
 
     public UUID getId(){
@@ -34,11 +34,11 @@ public class userEntity {
 
 
     public String getPassword_hash(){
-        return this.password_hash;
+        return this.passwordHash;
     }
 
     public void setPassword_hash(String password_hash) {
-        this.password_hash = password_hash;
+        this.passwordHash = password_hash;
     }
 
 }

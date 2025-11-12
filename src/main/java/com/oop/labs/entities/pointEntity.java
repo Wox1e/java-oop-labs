@@ -13,8 +13,8 @@ public class pointEntity {
     @GeneratedValue(strategy= GenerationType.UUID)
     private UUID id;
     private UUID functionId;
-    private double x_value;
-    private double y_value;
+    private double xValue;
+    private double yValue;
 
     public UUID getId(){
         return this.id;
@@ -36,19 +36,19 @@ public class pointEntity {
 
 
     public double getX_value(){
-        return this.x_value;
+        return this.xValue;
     }
 
     public void setX_value(double x_value) {
-        this.x_value = x_value;
+        this.xValue = x_value;
     }
 
     public double getY_value() {
-        return this.y_value;
+        return this.yValue;
     }
 
     public void setY_value(double y_value) {
-        this.y_value = y_value;
+        this.yValue = y_value;
     }
 
 

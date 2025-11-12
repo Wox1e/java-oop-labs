@@ -106,6 +106,58 @@ class UserRepositoryTest {
     }
 
     @Test
+    void shouldFindByUsername() {
+        userRepository.deleteAll();
+        userEntity first = new userEntity();
+        first.setUsername("alice");
+        first.setPassword_hash("hash1");
+        userRepository.save(first);
+
+        userEntity second = new userEntity();
+        second.setUsername("alice");
+        second.setPassword_hash("hash2");
+        userRepository.save(second);
+
+        userEntity third = new userEntity();
+        third.setUsername("bob");
+        third.setPassword_hash("hash3");
+        userRepository.save(third);
+
+        List<userEntity> users = userRepository.findByUsername("alice");
+        assertThat(users).hasSize(2);
+    }
+
+    @Test
+    void shouldFindByPasswordHash() {
+        userRepository.deleteAll();
+        userEntity target = new userEntity();
+        target.setUsername("charlie");
+        target.setPassword_hash("secure");
+        userRepository.save(target);
+
+        userEntity other = new userEntity();
+        other.setUsername("delta");
+        other.setPassword_hash("insecure");
+        userRepository.save(other);
+
+        List<userEntity> users = userRepository.findByPasswordHash("secure");
+        assertThat(users).hasSize(1);
+        assertEquals("charlie", users.getFirst().getUsername());
+    }
+
+    @Test
+    void shouldCountUsers() {
+        userRepository.deleteAll();
+        for (int i = 0; i < 5; i++) {
+            userEntity user = new userEntity();
+            user.setUsername("countedUser" + i);
+            user.setPassword_hash("pwd");
+            userRepository.save(user);
+        }
+        assertEquals(5, userRepository.count());
+    }
+
+    @Test
     void shouldUpdateUser() {
        userEntity newUser = new userEntity();
        newUser.setUsername("newuser");

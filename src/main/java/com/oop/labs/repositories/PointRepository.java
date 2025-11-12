@@ -8,5 +8,8 @@ import java.util.UUID;
 
 public interface PointRepository extends JpaRepository<pointEntity, UUID> {
     List<pointEntity> findByFunctionId(UUID functionId);
+    List<pointEntity> findByxValue(double xValue);
+    List<pointEntity> findByyValue(double yValue);
+
 
 }

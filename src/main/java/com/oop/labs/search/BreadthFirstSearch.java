@@ -8,10 +8,12 @@ import com.oop.labs.entities.pointEntity;
 import com.oop.labs.entities.userEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
 
+@Service
 public class BreadthFirstSearch {
 
     private final UserRepository userRepository;

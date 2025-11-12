@@ -87,7 +87,37 @@ class FunctionRepositoryTest {
         }
         assertEquals(functionRepository.findAll().size(), 5);
     }
-    
+
+    @Test
+    void shouldFindByNameTypeAndAuthor() {
+        functionEntity first = new functionEntity();
+        first.setName("alpha");
+        first.setType("polynomial");
+        first.setAuthor_id(ownerId);
+        functionRepository.save(first);
+
+        functionEntity second = new functionEntity();
+        second.setName("beta");
+        second.setType("polynomial");
+        second.setAuthor_id(ownerId);
+        functionRepository.save(second);
+
+        functionEntity third = new functionEntity();
+        third.setName("gamma");
+        third.setType("exponential");
+        third.setAuthor_id(UUID.randomUUID());
+        functionRepository.save(third);
+
+        List<functionEntity> byName = functionRepository.findByName("alpha");
+        List<functionEntity> byType = functionRepository.findByType("polynomial");
+        List<functionEntity> byAuthor = functionRepository.findByAuthorId(ownerId);
+
+        assertThat(byName).hasSize(1);
+        assertEquals("alpha", byName.getFirst().getName());
+
+        assertThat(byType).hasSize(2);
 
 
+        assertThat(byAuthor).hasSize(2);
+    }
 }
