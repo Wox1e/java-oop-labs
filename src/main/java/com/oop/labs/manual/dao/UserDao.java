@@ -1,7 +1,6 @@
 package com.oop.labs.manual.dao;
 
 
-import com.oop.labs.manual.dto.Function;
 import com.oop.labs.manual.dto.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +40,11 @@ public class UserDao {
         }
     }
 
-    public Optional<User> findById(int id) {
+    public Optional<User> findById(long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 User user = ResultSetToUser(rs);
@@ -119,7 +118,7 @@ public class UserDao {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
-            stmt.setInt(3, user.getId());
+            stmt.setLong(3, user.getId());
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
@@ -132,11 +131,11 @@ public class UserDao {
         return false;
     }
 
-    public boolean delete(int id) {
+    public boolean delete(long id) {
         String sql = "DELETE FROM users WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setLong(1, id);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 logger.info("Удален пользователь с id: {}", id);
@@ -153,7 +152,7 @@ public class UserDao {
             logger.info("Создаём DTO User на основе данных из БД");
             String username = rs.getString("username");
             String passwordHash = rs.getString("password_hash");
-            int id = rs.getInt("id");
+            long id = rs.getLong("id");
             logger.info("DTO User успешно создан");
             return new User(id, username, passwordHash);
         } catch (SQLException e) {

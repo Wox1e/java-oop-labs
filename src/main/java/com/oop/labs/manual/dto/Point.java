@@ -3,17 +3,17 @@ package com.oop.labs.manual.dto;
 
 public class Point {
     private long id;
-    private int functionId;
+    private long functionId;
     private double xValue;
     private double yValue;
 
-    public Point(int functionId, double xValue, double yValue) {
+    public Point(long functionId, double xValue, double yValue) {
         this.functionId = functionId;
         this.xValue = xValue;
         this.yValue = yValue;
     }
 
-    public Point(long id, int functionId, double xValue, double yValue) {
+    public Point(long id, long functionId, double xValue, double yValue) {
         this.id = id;
         this.functionId = functionId;
         this.xValue = xValue;
@@ -28,7 +28,7 @@ public class Point {
         this.id = id;
     }
 
-    public int getFunctionId() {
+    public long getFunctionId() {
         return functionId;
     }
 

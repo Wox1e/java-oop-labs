@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -42,15 +41,13 @@ public class FunctionDaoTest {
     }
 
     @BeforeEach
-    void setupTestData() throws SQLException {
-        // Создаем уникального тестового пользователя для каждого теста
+    void setupTestData() {
         User user = new User("test_user_" + System.currentTimeMillis(), "test_hash");
         testUserId = userDao.create(user);
     }
 
     @AfterEach
     void clearTables() throws SQLException {
-        // Очищаем в правильном порядке из-за foreign key constraints
         try (Statement stmt = testConnection.createStatement()) {
             stmt.execute("DELETE FROM points");
             stmt.execute("DELETE FROM functions");
@@ -68,7 +65,6 @@ public class FunctionDaoTest {
 
     static void createTables() throws SQLException {
         try (Statement stmt = testConnection.createStatement()) {
-            // Создаем таблицу users
             String createUsersTableSQL = """
                 CREATE TABLE users(
                     id serial primary key,
@@ -78,7 +74,6 @@ public class FunctionDaoTest {
                 """;
             stmt.execute(createUsersTableSQL);
 
-            // Затем создаем таблицу functions
             String createFunctionsTableSQL = """
                 CREATE TABLE functions(
                     id serial primary key,
@@ -90,7 +85,6 @@ public class FunctionDaoTest {
                 """;
             stmt.execute(createFunctionsTableSQL);
 
-            // Затем создаем таблицу points
             String createPointsTableSQL = """
                 CREATE TABLE points(
                     id bigserial primary key,
@@ -114,7 +108,7 @@ public class FunctionDaoTest {
     }
 
     @Test
-    void findExistingFunctionById() {
+    void findExistingFunctionById() throws SQLException {
         Function expectedFunction = new Function("cos(x)", "trigonometric", testUserId);
         int functionId = functionDao.create(expectedFunction);
 
@@ -129,13 +123,13 @@ public class FunctionDaoTest {
     }
 
     @Test
-    void findNonExistingFunctionById() {
+    void findNonExistingFunctionById() throws SQLException {
         Optional<Function> result = functionDao.findById(999);
         assertFalse(result.isPresent());
     }
 
     @Test
-    void findByNameExistingFunction() {
+    void findByNameExistingFunction() throws SQLException {
         Function expectedFunction = new Function("test_function", "custom", testUserId);
         functionDao.create(expectedFunction);
 
@@ -165,13 +159,13 @@ public class FunctionDaoTest {
     }
 
     @Test
-    void findAllInEmptyTable() {
+    void findAllInEmptyTable() throws SQLException {
         List<Function> result = functionDao.findAll();
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void findAll() {
+    void findAll() throws SQLException {
         List<Function> expectedFunctions = List.of(
                 new Function("function1", "type1", testUserId),
                 new Function("function2", "type2", testUserId),
@@ -187,7 +181,7 @@ public class FunctionDaoTest {
     }
 
     @Test
-    void updateFunction() {
+    void updateFunction() throws SQLException {
         Function function = new Function("old_name", "old_type", testUserId);
         int functionId = functionDao.create(function);
 
@@ -203,7 +197,7 @@ public class FunctionDaoTest {
     }
 
     @Test
-    void deleteFunction() {
+    void deleteFunction() throws SQLException {
         Function function = new Function("to_delete", "type", testUserId);
         int functionId = functionDao.create(function);
 

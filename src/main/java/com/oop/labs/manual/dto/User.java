@@ -1,7 +1,7 @@
 package com.oop.labs.manual.dto;
 
 public class User {
-    private int id;
+    private long id;
     private String username;
     private String passwordHash;
 
@@ -14,7 +14,7 @@ public class User {
         this.username = username;
     }
 
-    public User(int id, String username, String passwordHash) {
+    public User(long id, String username, String passwordHash) {
         this.id = id;
         this.passwordHash = passwordHash;
         this.username = username;
@@ -24,7 +24,7 @@ public class User {
         this.id = id;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

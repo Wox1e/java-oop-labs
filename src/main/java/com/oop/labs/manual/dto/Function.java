@@ -1,25 +1,25 @@
 package com.oop.labs.manual.dto;
 
 public class Function {
-    private int id;
+    private long id;
     private String name;
     private String type;
-    private int authorId;
+    private long authorId;
 
-    public Function(String name, String type, int authorId) {
+    public Function(String name, String type, long authorId) {
         this.name = name;
         this.type = type;
         this.authorId = authorId;
     }
 
-    public Function(int id, String name, String type, int authorId) {
+    public Function(long id, String name, String type, long authorId) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.authorId = authorId;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -43,7 +43,7 @@ public class Function {
         this.type = type;
     }
 
-    public int getAuthorId() {
+    public long getAuthorId() {
         return authorId;
     }
 

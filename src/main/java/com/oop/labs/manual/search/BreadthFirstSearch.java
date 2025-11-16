@@ -9,16 +9,15 @@ import com.oop.labs.manual.dto.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class BreadthFirstSearch {
 
-    private UserDao userDao;
-    private FunctionDao functionDao;
-    private PointDao pointDao;
+    private final UserDao userDao;
+    private final FunctionDao functionDao;
+    private final PointDao pointDao;
     private static final Logger logger = LogManager.getLogger(BreadthFirstSearch.class);
 
     public BreadthFirstSearch(UserDao userDao, FunctionDao functionDao, PointDao pointDao) {
@@ -27,7 +26,7 @@ public class BreadthFirstSearch {
         this.pointDao = pointDao;
     }
 
-    public List<Object> findAll() {
+    public List<Object> findAll() throws SQLException {
         logger.info("Поиск по всем данным в ширину (BFS)");
         List<Object> result = new LinkedList<>();
 
@@ -57,7 +56,7 @@ public class BreadthFirstSearch {
         return result;
     }
 
-    public List<Object> findAllForUser(User user) {
+    public List<Object> findAllForUser(User user) throws SQLException {
         logger.info("Поиск в ширину для пользователя с ID {}", user.getId());
         List<Object> result = new LinkedList<>();
         result.add(user);

@@ -21,7 +21,7 @@ public class PointDao {
         String query = "INSERT INTO points (function_id, x_value, y_value) VALUES (?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setInt(1, point.getFunctionId());
+            stmt.setLong(1, point.getFunctionId());
             stmt.setDouble(2, point.getXValue());
             stmt.setDouble(3, point.getYValue());
 
@@ -56,12 +56,12 @@ public class PointDao {
         return Optional.empty();
     }
 
-    public List<Point> findByFunctionId(int functionId) {
+    public List<Point> findByFunctionId(long functionId) throws SQLException {
         List<Point> points = new ArrayList<>();
         String sql = "SELECT * FROM points WHERE function_id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, functionId);
+            stmt.setLong(1, functionId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -69,11 +69,12 @@ public class PointDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка поиска точек по function_id: {}", functionId, e);
+            throw new SQLException(e);
         }
         return points;
     }
 
-    public List<Point> findAll() {
+    public List<Point> findAll() throws SQLException {
         List<Point> points = new ArrayList<>();
         String sql = "SELECT * FROM points";
 
@@ -85,11 +86,12 @@ public class PointDao {
             }
         } catch (SQLException e) {
             logger.error("Error finding all points", e);
+            throw new SQLException(e);
         }
         return points;
     }
 
-    public List<Point> findAllOrderedBy(String field, boolean isReversed) {
+    public List<Point> findAllOrderedBy(String field, boolean isReversed) throws SQLException {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск всех точек с сортировкой по полю: {} направление: {}", field, direction);
         List<Point> points = new ArrayList<>();
@@ -105,11 +107,12 @@ public class PointDao {
             logger.info("Найдено точек с сортировкой: {}", points.size());
         } catch (SQLException e) {
             logger.error("Ошибка поиска всех точек с сортировкой", e);
+            throw new SQLException(e);
         }
         return points;
     }
 
-    public List<Point> findByFunctionIdOrderedBy(int functionId, String field, boolean isReversed) {
+    public List<Point> findByFunctionIdOrderedBy(long functionId, String field, boolean isReversed) throws SQLException {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск точек по function_id: {} с сортировкой по полю: {} направление: {}", functionId, field, direction);
         List<Point> points = new ArrayList<>();
@@ -118,7 +121,7 @@ public class PointDao {
         String sql = "SELECT * FROM points WHERE function_id = ? ORDER BY " + field + " " + direction;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, functionId);
+            stmt.setLong(1, functionId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -127,15 +130,16 @@ public class PointDao {
             logger.info("Найдено точек с сортировкой: {}", points.size());
         } catch (SQLException e) {
             logger.error("Ошибка поиска точек по function_id с сортировкой", e);
+            throw new SQLException(e);
         }
         return points;
     }
 
-    public boolean update(Point point) {
+    public boolean update(Point point) throws SQLException {
         String sql = "UPDATE points SET function_id = ?, x_value = ?, y_value = ? WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, point.getFunctionId());
+            stmt.setLong(1, point.getFunctionId());
             stmt.setDouble(2, point.getXValue());
             stmt.setDouble(3, point.getYValue());
             stmt.setLong(4, point.getId());
@@ -147,11 +151,12 @@ public class PointDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка обновления точки с id: {}", point.getId(), e);
+            throw new SQLException(e);
         }
         return false;
     }
 
-    public boolean delete(long id) {
+    public boolean delete(long id) throws SQLException {
         String sql = "DELETE FROM points WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -163,15 +168,16 @@ public class PointDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка удаления точки с id: {}", id, e);
+            throw new SQLException(e);
         }
         return false;
     }
 
-    public boolean deleteByFunctionId(int functionId) {
+    public boolean deleteByFunctionId(long functionId) throws SQLException {
         String sql = "DELETE FROM points WHERE function_id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, functionId);
+            stmt.setLong(1, functionId);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 logger.info("Удалены точки с function_id: {}", functionId);
@@ -179,6 +185,7 @@ public class PointDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка удаления точек с function_id: {}", functionId, e);
+            throw new SQLException(e);
         }
         return false;
     }
@@ -193,6 +200,7 @@ public class PointDao {
             logger.info("DTO Point успешно создано");
             return new Point(id, functionId, xValue, yValue);
         } catch (SQLException e) {
+            logger.error("Ошибка создания DTO", e);
             throw new RuntimeException(e);
         }
     }

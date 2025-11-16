@@ -23,7 +23,7 @@ public class FunctionDao {
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, function.getName());
             stmt.setString(2, function.getType());
-            stmt.setInt(3, function.getAuthorId());
+            stmt.setLong(3, function.getAuthorId());
 
             int rs = stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
@@ -39,11 +39,11 @@ public class FunctionDao {
         }
     }
 
-    public Optional<Function> findById(int id) {
+    public Optional<Function> findById(long id) throws SQLException {
         String sql = "SELECT * FROM functions WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 Function function = resultSetToFunction(rs);
@@ -52,11 +52,12 @@ public class FunctionDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка поиска функции с id: {}", id, e);
+            throw new SQLException(e);
         }
         return Optional.empty();
     }
 
-    public Optional<Function> findByName(String name) {
+    public Optional<Function> findByName(String name) throws SQLException {
         String sql = "SELECT * FROM functions WHERE name = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -69,16 +70,17 @@ public class FunctionDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка поиска функции с name: {}", name, e);
+            throw new SQLException(e);
         }
         return Optional.empty();
     }
 
-    public List<Function> findByAuthorId(int authorId) {
+    public List<Function> findByAuthorId(long authorId) throws SQLException {
         List<Function> functions = new ArrayList<>();
         String sql = "SELECT * FROM functions WHERE author_id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, authorId);
+            stmt.setLong(1, authorId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -86,11 +88,12 @@ public class FunctionDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка поиска функций по author_id: {}", authorId, e);
+            throw new SQLException(e);
         }
         return functions;
     }
 
-    public List<Function> findAll() {
+    public List<Function> findAll() throws SQLException {
         List<Function> functions = new ArrayList<>();
         String sql = "SELECT * FROM functions";
 
@@ -102,11 +105,12 @@ public class FunctionDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка поиска всех ф-ций", e);
+            throw new SQLException(e);
         }
         return functions;
     }
 
-    public List<Function> findAllOrderedBy(String field, boolean isReversed) {
+    public List<Function> findAllOrderedBy(String field, boolean isReversed) throws SQLException {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск всех функций с сортировкой по полю: {} направление: {}", field, direction);
         List<Function> functions = new ArrayList<>();
@@ -122,12 +126,13 @@ public class FunctionDao {
             logger.info("Найдено функций с сортировкой: {}", functions.size());
         } catch (SQLException e) {
             logger.error("Ошибка поиска всех функций с сортировкой", e);
+            throw new SQLException(e);
         }
         return functions;
     }
 
 
-    public List<Function> findByAuthorIdOrderedBy(int authorId, String field, boolean isReversed) {
+    public List<Function> findByAuthorIdOrderedBy(long authorId, String field, boolean isReversed) throws SQLException {
         String direction = isReversed ? "DESC" : "ASC";
         logger.info("Поиск функций по author_id: {} с сортировкой по полю: {} направление: {}", authorId, field, direction);
         List<Function> functions = new ArrayList<>();
@@ -135,7 +140,7 @@ public class FunctionDao {
         String sql = "SELECT * FROM functions WHERE author_id = ? ORDER BY " + field + " " + direction;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, authorId);
+            stmt.setLong(1, authorId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -144,18 +149,19 @@ public class FunctionDao {
             logger.info("Найдено функций с сортировкой: {}", functions.size());
         } catch (SQLException e) {
             logger.error("Ошибка поиска функций по author_id с сортировкой", e);
+            throw new SQLException(e);
         }
         return functions;
     }
 
-    public boolean update(Function function) {
+    public boolean update(Function function) throws SQLException {
         String sql = "UPDATE functions SET name = ?, type = ?, author_id = ? WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, function.getName());
             stmt.setString(2, function.getType());
-            stmt.setInt(3, function.getAuthorId());
-            stmt.setInt(4, function.getId());
+            stmt.setLong(3, function.getAuthorId());
+            stmt.setLong(4, function.getId());
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
@@ -164,15 +170,16 @@ public class FunctionDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка обновления функции с id: {}", function.getId(), e);
+            throw new SQLException(e);
         }
         return false;
     }
 
-    public boolean delete(int id) {
+    public boolean delete(long id) throws SQLException {
         String sql = "DELETE FROM functions WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setLong(1, id);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 logger.info("Удалена функция с id: {}", id);
@@ -180,6 +187,7 @@ public class FunctionDao {
             }
         } catch (SQLException e) {
             logger.error("Ошибка удаления функции с id: {}", id, e);
+            throw new SQLException(e);
         }
         return false;
     }
@@ -194,6 +202,7 @@ public class FunctionDao {
             logger.info("DTO Function успешно создано");
             return new Function(id, name, type, authorId);
         } catch (SQLException e) {
+            logger.error("Ошибка создания DTO ", e);
             throw new RuntimeException(e);
         }
     }

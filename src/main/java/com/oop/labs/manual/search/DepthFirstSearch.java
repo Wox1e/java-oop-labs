@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,8 +28,8 @@ public class DepthFirstSearch {
         this.userDao = userDao;
     }
 
-    public List<Point> getUserPoints(User user){
-        int authorId = user.getId();
+    public List<Point> getUserPoints(User user) throws SQLException {
+        long authorId = user.getId();
         logger.info("Ищем точки для пользователя с ID {}",  authorId);
         List<Function> functions = functionDao.findByAuthorId(authorId);
         logger.info("Найдено ф-ций: {}", functions.size());
@@ -36,7 +37,7 @@ public class DepthFirstSearch {
         List<Point> points = new LinkedList<>();
 
         for(Function function : functions){
-            int functionId = function.getId();
+            long functionId = function.getId();
             logger.info("Обрабатываем ф-цию с ID {}",  functionId);
             List<Point> funcPoints = pointDao.findByFunctionId(functionId);
             logger.info("Найдено точек {}",   funcPoints.size());
@@ -47,7 +48,7 @@ public class DepthFirstSearch {
         return points;
     }
 
-    public List<Point> findAll() {
+    public List<Point> findAll() throws SQLException {
         List<Point> allPoints = new LinkedList<>();
         List<User> users = userDao.findAll();
         for (User user : users) {

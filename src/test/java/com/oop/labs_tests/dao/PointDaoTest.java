@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -26,8 +25,8 @@ public class PointDaoTest {
     private static FunctionDao functionDao;
     private static UserDao userDao;
     private static Connection testConnection;
-    private static int testUserId;
-    private static int testFunctionId;
+    private static long testUserId;
+    private static long testFunctionId;
 
     @BeforeAll
     static void setup() {
@@ -40,8 +39,7 @@ public class PointDaoTest {
     }
 
     @BeforeEach
-    void setupTestData() throws SQLException {
-        // Создаем уникального тестового пользователя и функцию для каждого теста
+    void setupTestData() {
         User user = new User("test_user_" + System.currentTimeMillis(), "test_hash");
         testUserId = userDao.create(user);
 
@@ -51,7 +49,6 @@ public class PointDaoTest {
 
     @AfterEach
     void clearTables() throws SQLException {
-        // Очищаем в правильном порядке из-за foreign key constraints
         try (Statement stmt = testConnection.createStatement()) {
             stmt.execute("DELETE FROM points");
             stmt.execute("DELETE FROM functions");
@@ -62,11 +59,18 @@ public class PointDaoTest {
     @Test
     void pointCreateTest() {
         Point point = new Point(testFunctionId, 1.0, 2.0);
-        assertEquals(1, pointDao.create(point));
+        long id1 = pointDao.create(point);
+        assertTrue(id1 > 0);
 
         point = new Point(testFunctionId, 2.0, 4.0);
-        assertEquals(2, pointDao.create(point));
+        long id2 = pointDao.create(point);
+        assertTrue(id2 > id1);
+
+        Point retrieved = pointDao.findById(id1).get();
+        assertEquals(1.0, retrieved.getXValue(), 0.001);
+        assertEquals(2.0, retrieved.getYValue(), 0.001);
     }
+
 
     @Test
     void findExistingPointById() {
@@ -91,7 +95,6 @@ public class PointDaoTest {
 
     @Test
     void findByFunctionId() throws SQLException {
-        // Создаем вторую функцию
         Function function2 = new Function("test_function_2_" + System.currentTimeMillis(), "type2", testUserId);
         int function2Id = functionDao.create(function2);
 
@@ -108,13 +111,13 @@ public class PointDaoTest {
     }
 
     @Test
-    void findAllInEmptyTable() {
+    void findAllInEmptyTable() throws SQLException {
         List<Point> result = pointDao.findAll();
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void findAll() {
+    void findAll() throws SQLException {
         List<Point> expectedPoints = List.of(
                 new Point(testFunctionId, 1.0, 1.0),
                 new Point(testFunctionId, 2.0, 4.0),
@@ -130,7 +133,7 @@ public class PointDaoTest {
     }
 
     @Test
-    void updatePoint() {
+    void updatePoint() throws SQLException {
         Point point = new Point(testFunctionId, 1.0, 1.0);
         long pointId = pointDao.create(point);
 
@@ -146,7 +149,7 @@ public class PointDaoTest {
     }
 
     @Test
-    void deletePoint() {
+    void deletePoint() throws SQLException {
         Point point = new Point(testFunctionId, 1.0, 1.0);
         long pointId = pointDao.create(point);
 
@@ -158,7 +161,7 @@ public class PointDaoTest {
     }
 
     @Test
-    void deleteByFunctionId() {
+    void deleteByFunctionId() throws SQLException {
         Point point1 = new Point(testFunctionId, 1.0, 1.0);
         Point point2 = new Point(testFunctionId, 2.0, 4.0);
 
