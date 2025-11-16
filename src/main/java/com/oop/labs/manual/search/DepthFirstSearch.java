@@ -16,13 +16,15 @@ import java.util.List;
 
 public class DepthFirstSearch {
 
-    private FunctionDao functionDao;
-    private PointDao pointDao;
+    private final UserDao userDao;
+    private final FunctionDao functionDao;
+    private final PointDao pointDao;
     private static final Logger logger = LogManager.getLogger(DepthFirstSearch.class);
 
-    public DepthFirstSearch(FunctionDao funcDao,  PointDao pointDao) {
+    public DepthFirstSearch(UserDao userDao, FunctionDao funcDao,  PointDao pointDao) {
         this.functionDao = funcDao;
         this.pointDao = pointDao;
+        this.userDao = userDao;
     }
 
     public List<Point> getUserPoints(User user){
@@ -43,5 +45,14 @@ public class DepthFirstSearch {
         logger.info("Поиск завершен");
         logger.info("Найдено всего точек {}", points.size());
         return points;
+    }
+
+    public List<Point> findAll() {
+        List<Point> allPoints = new LinkedList<>();
+        List<User> users = userDao.findAll();
+        for (User user : users) {
+            allPoints.addAll(getUserPoints(user));
+        }
+        return allPoints;
     }
 }

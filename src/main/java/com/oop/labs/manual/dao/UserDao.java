@@ -1,6 +1,7 @@
 package com.oop.labs.manual.dao;
 
 
+import com.oop.labs.manual.dto.Function;
 import com.oop.labs.manual.dto.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,25 +21,24 @@ public class UserDao {
 
     public int create(User user) {
 
-        String query = "INSERT INTO users (username, password_hash) VALUES (?, ?) RETURNING id";
+        String query = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPasswordHash());
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()) {
-                int id = rs.getInt("id");
-                logger.info("Создан пользователь с id: {}", id);
-                return id;
+            int rs = stmt.executeUpdate();
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Не удалось получить сгенерированный ключ");
+                }
             }
-
         } catch (SQLException e) {
             logger.error("Ошибка создания пользователя", e);
             throw new RuntimeException("Ошибка создания пользователя", e);
         }
-
-        return -1;
     }
 
     public Optional<User> findById(int id) {
@@ -111,6 +111,41 @@ public class UserDao {
             logger.error("Ошибка поиска всех пользователей с сортировкой", e);
         }
         return users;
+    }
+
+    public boolean update(User user) {
+        String sql = "UPDATE users SET username = ?, password_hash = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getPasswordHash());
+            stmt.setInt(3, user.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                logger.info("Обновлен пользователь с id: {}", user.getId());
+                return true;
+            }
+        } catch (SQLException e) {
+            logger.error("Ошибка обновления пользователя с id: {}", user.getId(), e);
+        }
+        return false;
+    }
+
+    public boolean delete(int id) {
+        String sql = "DELETE FROM users WHERE id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                logger.info("Удален пользователь с id: {}", id);
+                return true;
+            }
+        } catch (SQLException e) {
+            logger.error("Ошибка удаления пользователя с id: {}", id, e);
+        }
+        return false;
     }
 
     public User ResultSetToUser(ResultSet rs){

@@ -63,8 +63,12 @@
             <version>5.8.1</version>
             <scope>test</scope>
         </dependency>
+	<dependency>
+    	    <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.1.214</version> <!-- или другая актуальная версия -->
+	</dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

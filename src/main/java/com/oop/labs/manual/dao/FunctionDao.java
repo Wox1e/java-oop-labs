@@ -18,24 +18,25 @@ public class FunctionDao {
     }
 
     public int create(Function function) {
-        String query = "INSERT INTO functions (name, type, author_id) VALUES (?, ?, ?) RETURNING id";
+        String query = "INSERT INTO functions (name, type, author_id) VALUES (?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, function.getName());
             stmt.setString(2, function.getType());
             stmt.setInt(3, function.getAuthorId());
 
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                int id = rs.getInt("id");
-                logger.info("Создана функция с id: {}", id);
-                return id;
+            int rs = stmt.executeUpdate();
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Не удалось получить сгенерированный ключ");
+                }
             }
         } catch (SQLException e) {
             logger.error("Ошибка создания функции", e);
             throw new RuntimeException("Ошибка создания функции", e);
         }
-        return -1;
     }
 
     public Optional<Function> findById(int id) {

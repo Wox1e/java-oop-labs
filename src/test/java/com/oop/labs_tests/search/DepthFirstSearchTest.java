@@ -33,7 +33,7 @@ public class DepthFirstSearchTest {
         userDao = new UserDao(connection);
         pointDao = new PointDao(connection);
         functionDao = new FunctionDao(connection);
-        depthFirstSearch = new DepthFirstSearch(functionDao, pointDao);
+        depthFirstSearch = new DepthFirstSearch(userDao, functionDao, pointDao);
     }
 
     @Test

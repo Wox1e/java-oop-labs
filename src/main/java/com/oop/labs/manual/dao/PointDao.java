@@ -18,24 +18,25 @@ public class PointDao {
     }
 
     public long create(Point point) {
-        String query = "INSERT INTO points (function_id, x_value, y_value) VALUES (?, ?, ?) RETURNING id";
+        String query = "INSERT INTO points (function_id, x_value, y_value) VALUES (?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, point.getFunctionId());
             stmt.setDouble(2, point.getXValue());
             stmt.setDouble(3, point.getYValue());
 
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                long id = rs.getLong("id");
-                logger.info("Создана точка с id: {}", id);
-                return id;
+            int rs = stmt.executeUpdate();
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Не удалось получить сгенерированный ключ");
+                }
             }
         } catch (SQLException e) {
             logger.error("Ошибка создания точки", e);
             throw new RuntimeException("Ошибка создания точки", e);
         }
-        return -1;
     }
 
     public Optional<Point> findById(long id) {
