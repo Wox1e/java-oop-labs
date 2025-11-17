@@ -24,6 +24,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
 @EntityScan("com.oop.labs.entities")
 @EnableJpaRepositories("com.oop.labs.repositories")
 @DataJpaTest
