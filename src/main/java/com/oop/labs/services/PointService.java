@@ -71,5 +71,39 @@ public class PointService {
         logger.info("Получение точек, отсортированных по yValue ({})", direction);
         return pointRepository.findAll(Sort.by(direction == null ? Sort.Direction.ASC : direction, "yValue"));
     }
+
+    @Transactional
+    public pointEntity createPoint(UUID functionId, double xValue, double yValue) {
+        logger.info("Создание новой точки для функции: {}, X: {}, Y: {}", functionId, xValue, yValue);
+        pointEntity point = new pointEntity();
+        point.setFunction_id(functionId);
+        point.setX_value(xValue);
+        point.setY_value(yValue);
+        pointEntity saved = pointRepository.save(point);
+        logger.debug("Точка создана с ID: {}", saved.getId());
+        return saved;
+    }
+
+    @Transactional
+    public pointEntity savePoint(pointEntity point) {
+        logger.info("Сохранение точки с ID: {}", point.getId());
+        pointEntity saved = pointRepository.save(point);
+        logger.debug("Точка сохранена: X={}, Y={}", saved.getX_value(), saved.getY_value());
+        return saved;
+    }
+
+    @Transactional
+    public void deletePointById(UUID id) {
+        logger.info("Удаление точки по ID: {}", id);
+        pointRepository.deleteById(id);
+        logger.debug("Точка с ID {} удалена", id);
+    }
+
+    @Transactional
+    public void deletePoint(pointEntity point) {
+        logger.info("Удаление точки с X={}, Y={}", point.getX_value(), point.getY_value());
+        pointRepository.delete(point);
+        logger.debug("Точка удалена");
+    }
 }
 

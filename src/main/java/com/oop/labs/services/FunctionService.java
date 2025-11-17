@@ -71,5 +71,39 @@ public class FunctionService {
         logger.info("Получение функций, отсортированных по authorId ({})", direction);
         return functionRepository.findAll(Sort.by(direction == null ? Sort.Direction.ASC : direction, "authorId"));
     }
+
+    @Transactional
+    public functionEntity createFunction(String name, String type, UUID authorId) {
+        logger.info("Создание новой функции с именем: {}, типом: {}, автором: {}", name, type, authorId);
+        functionEntity function = new functionEntity();
+        function.setName(name);
+        function.setType(type);
+        function.setAuthor_id(authorId);
+        functionEntity saved = functionRepository.save(function);
+        logger.debug("Функция создана с ID: {}", saved.getId());
+        return saved;
+    }
+
+    @Transactional
+    public functionEntity saveFunction(functionEntity function) {
+        logger.info("Сохранение функции с ID: {}", function.getId());
+        functionEntity saved = functionRepository.save(function);
+        logger.debug("Функция сохранена: {}", saved.getName());
+        return saved;
+    }
+
+    @Transactional
+    public void deleteFunctionById(UUID id) {
+        logger.info("Удаление функции по ID: {}", id);
+        functionRepository.deleteById(id);
+        logger.debug("Функция с ID {} удалена", id);
+    }
+
+    @Transactional
+    public void deleteFunction(functionEntity function) {
+        logger.info("Удаление функции: {}", function.getName());
+        functionRepository.delete(function);
+        logger.debug("Функция {} удалена", function.getName());
+    }
 }
 
