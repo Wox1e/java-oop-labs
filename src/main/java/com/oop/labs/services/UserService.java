@@ -31,10 +31,9 @@ public class UserService {
         return user;
     }
 
-    public List<userEntity> findUsersByUsername(String username) {
+    public Optional<userEntity> findUsersByUsername(String username) {
         logger.info("Поиск пользователей по username: {}", username);
-        List<userEntity> users = userRepository.findByUsername(username);
-        logger.debug("Найдено пользователей: {}", users.size());
+        Optional<userEntity> users = userRepository.findByUsername(username);
         return users;
     }
 
