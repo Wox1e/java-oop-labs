@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/functions")
-public class FunctionsController extends Controller {
+public class FunctionsController{
 
     private final FunctionService service;
 
@@ -29,24 +29,8 @@ public class FunctionsController extends Controller {
     public List<functionEntity> get(@RequestParam(required = false) UUID authorId,
                                     @RequestParam(required = false) String type,
                                     @RequestParam(required = false) String name) {
-        List<functionEntity> result = service.findAllFunctionsSortedByAuthorId(Sort.Direction.ASC);
 
-        if (authorId != null) {
-            List<functionEntity> byAuthor = service.findFunctionsByAuthor(authorId);
-            result = super.getCommonElements(result, byAuthor);
-        }
-
-        if (type != null && !type.trim().isEmpty()) {
-            List<functionEntity> byType = service.findFunctionsByType(type.trim());
-            result = getCommonElements(result, byType);
-        }
-
-        if (name != null && !name.trim().isEmpty()) {
-            List<functionEntity> byName = service.findFunctionsByName(name.trim());
-            result = getCommonElements(result, byName);
-        }
-
-        return result;
+        return service.findFiltered(authorId, type, name);
     }
 
 

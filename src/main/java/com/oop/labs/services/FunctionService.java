@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
-public class FunctionService {
+public class FunctionService extends com.oop.labs.services.Service {
 
     private static final Logger logger = LogManager.getLogger(FunctionService.class);
 
@@ -29,6 +29,28 @@ public class FunctionService {
         Optional<functionEntity> function = functionRepository.findById(id);
         function.ifPresent(entity -> logger.debug("Найдена функция: {}", entity.getName()));
         return function;
+    }
+
+    public List<functionEntity> findFiltered(UUID authorId, String type, String name) {
+
+        List<functionEntity> result = findAllFunctionsSortedByAuthorId(Sort.Direction.ASC);
+
+        if (authorId != null) {
+            List<functionEntity> byAuthor = findFunctionsByAuthor(authorId);
+            result = super.getCommonElements(result, byAuthor);
+        }
+
+        if (type != null && !type.trim().isEmpty()) {
+            List<functionEntity> byType = findFunctionsByType(type.trim());
+            result = getCommonElements(result, byType);
+        }
+
+        if (name != null && !name.trim().isEmpty()) {
+            List<functionEntity> byName = findFunctionsByName(name.trim());
+            result = getCommonElements(result, byName);
+        }
+
+        return result;
     }
 
     public List<functionEntity> findFunctionsByName(String name) {

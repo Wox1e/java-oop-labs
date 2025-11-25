@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
-public class PointService {
+public class PointService extends com.oop.labs.services.Service {
 
     private static final Logger logger = LogManager.getLogger(PointService.class);
 
@@ -29,6 +29,27 @@ public class PointService {
         Optional<pointEntity> point = pointRepository.findById(id);
         point.ifPresent(entity -> logger.debug("Найдена точка с X={}, Y={}", entity.getX_value(), entity.getY_value()));
         return point;
+    }
+
+    public List<pointEntity> findFiltered(UUID functionId, Double x_value, Double y_value) {
+        List<pointEntity> result = findAllPointsSortedByFunctionId(Sort.Direction.ASC);
+
+        if (functionId != null) {
+            List<pointEntity> byFunctionId = findPointsByFunctionId(functionId);
+            result = super.getCommonElements(result, byFunctionId);
+        }
+
+        if (x_value != null) {
+            List<pointEntity> byXValue = findPointsByXValue(x_value);
+            result = getCommonElements(result, byXValue);
+        }
+
+        if (y_value != null) {
+            List<pointEntity> byYValue = findPointsByYValue(y_value);
+            result = getCommonElements(result, byYValue);
+        }
+
+        return result;
     }
 
     public List<pointEntity> findPointsByFunctionId(UUID functionId) {
