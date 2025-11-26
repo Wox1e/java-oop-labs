@@ -5,6 +5,7 @@ import com.oop.labs.repositories.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +20,11 @@ public class UserService {
     private static final Logger logger = LogManager.getLogger(UserService.class);
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Optional<userEntity> findUserById(UUID id) {
@@ -60,11 +63,11 @@ public class UserService {
     }
 
     @Transactional
-    public userEntity createUser(String username, String passwordHash) {
+    public userEntity createUser(String username, String password) {
         logger.info("Создание нового пользователя с username: {}", username);
         userEntity user = new userEntity();
         user.setUsername(username);
-        user.setPassword_hash(passwordHash);
+        user.setPassword_hash(passwordEncoder.encode(password));
         userEntity saved = userRepository.save(user);
         logger.debug("Пользователь создан с ID: {}", saved.getId());
         return saved;
@@ -73,6 +76,9 @@ public class UserService {
     @Transactional
     public userEntity saveUser(userEntity user) {
         logger.info("Сохранение пользователя с ID: {}", user.getId());
+        if (user.getPassword_hash() != null) {
+            user.setPassword_hash(passwordEncoder.encode(user.getPassword_hash()));
+        }
         userEntity saved = userRepository.save(user);
         logger.debug("Пользователь сохранён: {}", saved.getUsername());
         return saved;

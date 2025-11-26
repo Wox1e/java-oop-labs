@@ -2,12 +2,14 @@ package com.oop.labs.controllers;
 
 import com.oop.labs.concurrent.MultiplyingTask;
 import com.oop.labs.entities.functionEntity;
+import com.oop.labs.entities.userEntity;
 import com.oop.labs.services.FunctionService;
+import com.oop.labs.services.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -18,22 +20,43 @@ public class FunctionsController{
 
     private static final Logger logger = LogManager.getLogger(FunctionsController.class);
     private final FunctionService service;
+    private final UserService userService;
 
-    FunctionsController(FunctionService service) {
+    FunctionsController(FunctionService service, UserService userService) {
         this.service = service;
+        this.userService = userService;
     }
 
     @PostMapping("/")
-    public functionEntity save(@RequestBody functionEntity function) {
-        service.saveFunction(function);
-        logger.info("Сохраняем функцию {}", function.getName());
-        return function;
+    public ResponseEntity<?> save(Authentication authentication, @RequestBody functionEntity function) {
+        String username = authentication.getName();
+        Optional<userEntity> user = userService.findUsersByUsername(username);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        function.setAuthor_id(user.get().getId());
+        functionEntity saved = service.saveFunction(function);
+        logger.info("Сохраняем функцию {} для пользователя {}", saved.getName(), username);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> get(@RequestParam(required = false) UUID authorId,
+    public ResponseEntity<?> get(Authentication authentication,
                                  @RequestParam(required = false) String type,
                                  @RequestParam(required = false) String name) {
+        logger.info("auth: {}", authentication.getName());
+        String username =  authentication.getName();
+        Optional<userEntity> user = userService.findUsersByUsername(username);
+
+
+        if(user.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        UUID authorId = user.get().getId();
+
         logger.info("Ищем функцию - authorId: {} | type: {} | name: {}", authorId, type, name);
 
         try {
@@ -60,13 +83,20 @@ public class FunctionsController{
 
 
     @GetMapping("/{function_id}")
-    public ResponseEntity<?> getByID(@PathVariable UUID function_id) {
+    public ResponseEntity<?> getByID(Authentication authentication, @PathVariable UUID function_id) {
         logger.info("Ищем функцию по id {}", function_id);
 
         try {
+            String username = authentication.getName();
+            Optional<userEntity> user = userService.findUsersByUsername(username);
+
+            if (user.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
             Optional<functionEntity> function = service.findFunctionById(function_id);
 
-            if (function.isEmpty()) {
+            if (function.isEmpty() || !user.get().getId().equals(function.get().getAuthor_id())) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of(
                                 "status", "error",
