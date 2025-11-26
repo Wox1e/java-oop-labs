@@ -1,0 +1,336 @@
+{
+	"info": {
+		"_postman_id": "6d665e02-84a7-4f38-a231-777924bc8f28",
+		"name": "OOP API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44053407",
+		"_collection_link": "https://maximivanov-725231.postman.co/workspace/Maxim-Ivanov's-Workspace~162b42d6-bdfa-4fbe-86a2-0db5587093c5/collection/44053407-6d665e02-84a7-4f38-a231-777924bc8f28?action=share&source=collection_link&creator=44053407"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "User Create Correct",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has 'id' field\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"});",
+									"",
+									"pm.test(\"Username matches request body\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.username).to.eql(\"ls\");",
+									"});",
+									"",
+									"pm.test(\"Password hash matches request body\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.password_hash).to.eql(\"asdasd803608hed\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"ls\",\n    \"password_hash\":\"asdasd803608hed\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/users/71a87d58-b34f-42f4-bdc6-cdb722dfaa55",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"71a87d58-b34f-42f4-bdc6-cdb722dfaa55"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Functions",
+			"item": [
+				{
+					"name": "Create Function",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"POST /functions - Status 200 Created\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"POST /functions - Response contains created functions\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('id');",
+									"    pm.expect(response).to.have.property('type');",
+									"    pm.expect(response).to.have.property('name');",
+									"    pm.expect(response).to.have.property('author_id');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"sin\",\n    \"type\": \"trig\",\n    \"author_id\": \"62a7166b-9ef7-4f08-95a0-92ed5462ab20\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/functions/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"functions",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get functions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 2xx\", function () {",
+									"    pm.expect(pm.response.code).to.be.within(200, 299);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/functions/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"functions",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Points",
+			"item": [
+				{
+					"name": "Create point",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 2xx\", function () {",
+									"    pm.expect(pm.response.code).to.be.within(200, 299);",
+									"});",
+									"",
+									"pm.test(\"Response has Content-Type header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"pm.test(\"Response is valid JSON\", function () {",
+									"    pm.expect(function () {",
+									"        pm.response.json();",
+									"    }).to.not.throw();",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"function_id\": \"e482ddd1-a2e2-499a-af17-82a517f3e4e1\",\n    \"x_value\": 0.14,\n    \"y_value\": 122\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/points/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"points",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Points",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/points/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"points",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Collection-level tests for OOP API",
+					"// These will run after every request in the collection",
+					"",
+					"pm.test(\"Status code is 2xx\", function () {",
+					"    pm.expect(pm.response.code).to.be.within(200, 299);",
+					"});",
+					"",
+					"pm.test(\"Response has Content-Type header\", function () {",
+					"    pm.response.to.have.header(\"Content-Type\");",
+					"});",
+					"",
+					"// If response is JSON, check for common properties",
+					"if (pm.response.headers.get(\"Content-Type\") && pm.response.headers.get(\"Content-Type\").includes(\"application/json\")) {",
+					"    let jsonData;",
+					"    try {",
+					"        jsonData = pm.response.json();",
+					"        pm.test(\"Response is valid JSON\", function () {",
+					"            pm.expect(jsonData).to.be.an(\"object\");",
+					"        });",
+					"        // Check for typical keys (customize as needed)",
+					"        const possibleKeys = [\"id\", \"name\", \"status\", \"message\", \"data\", \"error\"];",
+					"        pm.test(\"Response contains at least one expected key\", function () {",
+					"            const keys = Object.keys(jsonData);",
+					"            pm.expect(keys.some(k => possibleKeys.includes(k))).to.be.true;",
+					"        });",
+					"    } catch (e) {",
+					"        pm.test(\"Response is not valid JSON\", function () {",
+					"            pm.expect.fail(\"Response body is not valid JSON\");",
+					"        });",
+					"    }",
+					"}",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
