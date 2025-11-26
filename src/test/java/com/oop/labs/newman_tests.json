@@ -329,7 +329,7 @@
 	"variable": [
 		{
 			"key": "baseURL",
-			"value": "",
+			"value": "localhost:8080",
 			"type": "default"
 		}
 	]
