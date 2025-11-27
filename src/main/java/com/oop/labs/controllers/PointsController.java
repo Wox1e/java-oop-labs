@@ -61,7 +61,12 @@ public class PointsController  {
 
         pointEntity saved = pointService.savePoint(point);
         logger.info("Сохраняем точку {} для функции {} и пользователя {}", saved.getId(), functionId, username);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "status", "success",
+                "created", true,
+                "id", saved.getId(),
+                "timestamp", System.currentTimeMillis()
+        ));
     }
 
     @GetMapping("/")

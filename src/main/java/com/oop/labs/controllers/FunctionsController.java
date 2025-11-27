@@ -39,7 +39,12 @@ public class FunctionsController{
         function.setAuthor_id(user.get().getId());
         functionEntity saved = service.saveFunction(function);
         logger.info("Сохраняем функцию {} для пользователя {}", saved.getName(), username);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "status", "success",
+                "created", true,
+                "id", saved.getId(),
+                "timestamp", System.currentTimeMillis()
+        ));
     }
 
     @GetMapping("/")

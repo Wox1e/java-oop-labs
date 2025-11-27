@@ -25,17 +25,29 @@ public class UsersController {
     }
 
     @PostMapping("/")
-    public userEntity save(@RequestBody userEntity user) {
+    public ResponseEntity<?> save(@RequestBody userEntity user) {
         logger.info("Сохраняем пользователя {}", user.getUsername());
         Optional<userEntity> existingUser = service.findUsersByUsername(user.getUsername());
         if (existingUser.isPresent()){
             logger.info("Пользователь уже существует");
-            return existingUser.get();
+            return ResponseEntity.ok()
+                    .body(Map.of(
+                            "status", "success",
+                            "created", false,
+                            "id", existingUser.get().getId(),
+                            "timestamp", System.currentTimeMillis()
+                    ));
         }
 
         service.saveUser(user);
         logger.info("Пользователь сохранён");
-        return user;
+        return ResponseEntity.ok()
+                .body(Map.of(
+                        "status", "success",
+                        "created", true,
+                        "id", user.getId(),
+                        "timestamp", System.currentTimeMillis()
+                ));
     }
 
     @GetMapping("/{username}")
