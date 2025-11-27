@@ -102,7 +102,7 @@ public class FunctionsController{
             Optional<functionEntity> function = service.findFunctionById(function_id);
 
             if (function.isEmpty() || !user.get().getId().equals(function.get().getAuthor_id())) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                return ResponseEntity.status(HttpStatus.OK)
                         .body(Map.of(
                                 "status", "error",
                                 "found", false,
