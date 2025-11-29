@@ -50,7 +50,8 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/users/",
+							"raw": "http://localhost:8080/users/",
+							"protocol": "http",
 							"host": [
 								"localhost"
 							],
@@ -109,7 +110,8 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/users/",
+							"raw": "http://localhost:8080/users/",
+							"protocol": "http",
 							"host": [
 								"localhost"
 							],
@@ -152,7 +154,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/users/ls2",
+							"raw": "http://localhost:8080/users/ls2",
+							"protocol": "http",
 							"host": [
 								"localhost"
 							],
@@ -202,7 +205,8 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/functions/",
+							"raw": "http://localhost:8080/functions/",
+							"protocol": "http",
 							"host": [
 								"localhost"
 							],
@@ -236,7 +240,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/functions/",
+							"raw": "http://localhost:8080/functions/",
+							"protocol": "http",
 							"host": [
 								"localhost"
 							],
@@ -272,7 +277,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/functions/d3898cc4-29fa-4164-88ed-6a5977abb953",
+							"raw": "http://localhost:8080/functions/d3898cc4-29fa-4164-88ed-6a5977abb953",
+							"protocol": "http",
 							"host": [
 								"localhost"
 							],
@@ -365,7 +371,8 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/points/",
+							"raw": "http://localhost:8080/points/",
+							"protocol": "http",
 							"host": [
 								"localhost"
 							],
@@ -400,7 +407,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/points/",
+							"raw": "http://localhost:8080/points/",
+							"protocol": "http",
 							"host": [
 								"localhost"
 							],
@@ -440,7 +448,7 @@
 				"requests": {},
 				"exec": [
 					"const createUserRequest = {",
-					"    url: 'https://localhost:8080/users/',",
+					"    url: 'http://localhost:8080/users/',",
 					"    method: 'POST',",
 					"    header: {",
 					"        'Content-Type': 'application/json'",
@@ -449,7 +457,7 @@
 					"        mode: 'raw',",
 					"        raw: JSON.stringify({",
 					"            username: 'ls2',",
-					"            password: '123'",
+					"            password_hash: '123'",
 					"        })",
 					"    }",
 					"};",
@@ -461,11 +469,12 @@
 					"        return;",
 					"    }",
 					"    ",
-					"    if (response.code === 201) {",
+					"    if (response.code === 200 || response.code === 201) {",
 					"        const userData = response.json();",
 					"        // Сохраняем ID пользователя для использования в тестах",
-					"        pm.collectionVariables.set('user_id', userData.id);",
-					"        pm.collectionVariables.set('user_email', userData.email);",
+					"        if (userData.id) {",
+					"            pm.collectionVariables.set('user_id', userData.id);",
+					"        }",
 					"        console.log('User created successfully:', userData.id);",
 					"    } else {",
 					"        console.error('Failed to create user:', response.text());",

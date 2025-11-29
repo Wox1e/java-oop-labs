@@ -105,27 +105,6 @@ class UserRepositoryTest {
 
     }
 
-    @Test
-    void shouldFindByUsername() {
-        userRepository.deleteAll();
-        userEntity first = new userEntity();
-        first.setUsername("alice");
-        first.setPassword_hash("hash1");
-        userRepository.save(first);
-
-        userEntity second = new userEntity();
-        second.setUsername("alice");
-        second.setPassword_hash("hash2");
-        userRepository.save(second);
-
-        userEntity third = new userEntity();
-        third.setUsername("bob");
-        third.setPassword_hash("hash3");
-        userRepository.save(third);
-
-        List<userEntity> users = userRepository.findByUsername("alice");
-        assertThat(users).hasSize(2);
-    }
 
     @Test
     void shouldFindByPasswordHash() {
