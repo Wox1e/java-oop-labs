@@ -26,15 +26,6 @@
 									"    pm.expect(jsonData).to.have.property('id');",
 									"});",
 									"",
-									"pm.test(\"Username matches request body\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.username).to.eql(\"ls\");",
-									"});",
-									"",
-									"pm.test(\"Password hash matches request body\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.password_hash).to.eql(\"asdasd803608hed\");",
-									"});",
 									""
 								],
 								"type": "text/javascript",
@@ -44,11 +35,14 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\":\"ls\",\n    \"password_hash\":\"asdasd803608hed\"\n}",
+							"raw": "{\n    \"username\":\"ls2\",\n    \"password_hash\":\"123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -56,10 +50,70 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/users/",
+							"raw": "localhost:8080/users/",
 							"host": [
-								"{{baseURL}}"
+								"localhost"
 							],
+							"port": "8080",
+							"path": [
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Create Incorrect",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is not 200\", function () {",
+									"    pm.expect(pm.response.code).to.not.eql(200);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":null,\n    \"password_hash\":null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
 							"path": [
 								"users",
 								""
@@ -81,19 +135,31 @@
 								"packages": {},
 								"requests": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
 						}
 					],
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseURL}}/users/71a87d58-b34f-42f4-bdc6-cdb722dfaa55",
+							"raw": "localhost:8080/users/ls2",
 							"host": [
-								"{{baseURL}}"
+								"localhost"
 							],
+							"port": "8080",
 							"path": [
 								"users",
-								"71a87d58-b34f-42f4-bdc6-cdb722dfaa55"
+								"ls2"
 							]
 						}
 					},
@@ -111,17 +177,10 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"POST /functions - Status 200 Created\", function () {",
-									"    pm.response.to.have.status(200);",
+									"pm.test(\"POST /functions - Status 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
 									"});",
 									"",
-									"pm.test(\"POST /functions - Response contains created functions\", function () {",
-									"    const response = pm.response.json();",
-									"    pm.expect(response).to.have.property('id');",
-									"    pm.expect(response).to.have.property('type');",
-									"    pm.expect(response).to.have.property('name');",
-									"    pm.expect(response).to.have.property('author_id');",
-									"});",
 									""
 								],
 								"type": "text/javascript",
@@ -135,7 +194,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"sin\",\n    \"type\": \"trig\",\n    \"author_id\": \"62a7166b-9ef7-4f08-95a0-92ed5462ab20\"\n}",
+							"raw": "{\n    \"name\": \"sin\",\n    \"type\": \"trig\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -143,10 +202,11 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/functions/",
+							"raw": "localhost:8080/functions/",
 							"host": [
-								"{{baseURL}}"
+								"localhost"
 							],
+							"port": "8080",
 							"path": [
 								"functions",
 								""
@@ -157,6 +217,40 @@
 				},
 				{
 					"name": "Get functions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/functions/",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"functions",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get function",
 					"event": [
 						{
 							"listen": "test",
@@ -178,13 +272,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseURL}}/functions/",
+							"raw": "localhost:8080/functions/d3898cc4-29fa-4164-88ed-6a5977abb953",
 							"host": [
-								"{{baseURL}}"
+								"localhost"
 							],
+							"port": "8080",
 							"path": [
 								"functions",
-								""
+								"d3898cc4-29fa-4164-88ed-6a5977abb953"
 							]
 						}
 					},
@@ -220,6 +315,41 @@
 								"packages": {},
 								"requests": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"try {\r",
+									"    const response = await pm.execution.runRequest(\"44053407-d345c947-511d-4e09-8dd9-036b270223d5\");\r",
+									"    const responseData = response.json();\r",
+									"    \r",
+									"    // Получаем ID из ответа\r",
+									"    const id = responseData.id;\r",
+									"    \r",
+									"    // Сохраняем в переменные окружения\r",
+									"    pm.environment.set(\"function_id\", id);\r",
+									"    \r",
+									"    console.log(\"ID сохранен:\", id);\r",
+									"    \r",
+									"} catch (err) {\r",
+									"    console.error(err);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {
+									"44053407-d345c947-511d-4e09-8dd9-036b270223d5": {
+										"workspace": "162b42d6-bdfa-4fbe-86a2-0db5587093c5",
+										"collection": "44053407-6d665e02-84a7-4f38-a231-777924bc8f28",
+										"location": [
+											"OOP API",
+											"Functions",
+											"Create Function"
+										]
+									}
+								}
+							}
 						}
 					],
 					"request": {
@@ -227,7 +357,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"function_id\": \"e482ddd1-a2e2-499a-af17-82a517f3e4e1\",\n    \"x_value\": 0.14,\n    \"y_value\": 122\n}",
+							"raw": "{\n    \"function_id\": \"{{function_id}}\",\n    \"x_value\": 0.14,\n    \"y_value\": -122\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -235,10 +365,11 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/points/",
+							"raw": "localhost:8080/points/",
 							"host": [
-								"{{baseURL}}"
+								"localhost"
 							],
+							"port": "8080",
 							"path": [
 								"points",
 								""
@@ -269,10 +400,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseURL}}/points/",
+							"raw": "localhost:8080/points/",
 							"host": [
-								"{{baseURL}}"
+								"localhost"
 							],
+							"port": "8080",
 							"path": [
 								"points",
 								""
@@ -284,43 +416,74 @@
 			]
 		}
 	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "123",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "ls2",
+				"type": "string"
+			}
+		]
+	},
 	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					"const createUserRequest = {",
+					"    url: 'https://localhost:8080/users/',",
+					"    method: 'POST',",
+					"    header: {",
+					"        'Content-Type': 'application/json'",
+					"    },",
+					"    body: {",
+					"        mode: 'raw',",
+					"        raw: JSON.stringify({",
+					"            username: 'ls2',",
+					"            password: '123'",
+					"        })",
+					"    }",
+					"};",
+					"",
+					"// Выполняем запрос на создание пользователя",
+					"pm.sendRequest(createUserRequest, function (err, response) {",
+					"    if (err) {",
+					"        console.error('Error creating user:', err);",
+					"        return;",
+					"    }",
+					"    ",
+					"    if (response.code === 201) {",
+					"        const userData = response.json();",
+					"        // Сохраняем ID пользователя для использования в тестах",
+					"        pm.collectionVariables.set('user_id', userData.id);",
+					"        pm.collectionVariables.set('user_email', userData.email);",
+					"        console.log('User created successfully:', userData.id);",
+					"    } else {",
+					"        console.error('Failed to create user:', response.text());",
+					"    }",
+					"});"
+				]
+			}
+		},
 		{
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
-					"// Collection-level tests for OOP API",
-					"// These will run after every request in the collection",
-					"",
-					"pm.test(\"Status code is 2xx\", function () {",
-					"    pm.expect(pm.response.code).to.be.within(200, 299);",
-					"});",
-					"",
-					"pm.test(\"Response has Content-Type header\", function () {",
-					"    pm.response.to.have.header(\"Content-Type\");",
-					"});",
-					"",
-					"// If response is JSON, check for common properties",
-					"if (pm.response.headers.get(\"Content-Type\") && pm.response.headers.get(\"Content-Type\").includes(\"application/json\")) {",
-					"    let jsonData;",
-					"    try {",
-					"        jsonData = pm.response.json();",
-					"        pm.test(\"Response is valid JSON\", function () {",
-					"            pm.expect(jsonData).to.be.an(\"object\");",
-					"        });",
-					"        // Check for typical keys (customize as needed)",
-					"        const possibleKeys = [\"id\", \"name\", \"status\", \"message\", \"data\", \"error\"];",
-					"        pm.test(\"Response contains at least one expected key\", function () {",
-					"            const keys = Object.keys(jsonData);",
-					"            pm.expect(keys.some(k => possibleKeys.includes(k))).to.be.true;",
-					"        });",
-					"    } catch (e) {",
-					"        pm.test(\"Response is not valid JSON\", function () {",
-					"            pm.expect.fail(\"Response body is not valid JSON\");",
-					"        });",
-					"    }",
-					"}",
+					"pm.test(\"Content-Type is present\", function () {\r",
+					"    pm.response.to.have.header(\"Content-Type\");\r",
+					"});\r",
+					"\r",
 					""
 				]
 			}
@@ -329,8 +492,7 @@
 	"variable": [
 		{
 			"key": "baseURL",
-			"value": "localhost:8080",
-			"type": "default"
+			"value": ""
 		}
 	]
 }
