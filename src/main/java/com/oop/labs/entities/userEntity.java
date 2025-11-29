@@ -1,5 +1,6 @@
 package com.oop.labs.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,6 +19,7 @@ public class userEntity {
     private String username;
     
     @NotBlank(message = "Поле 'password' обязательное")
+    @JsonProperty("password_hash")
     private String passwordHash;
 
 

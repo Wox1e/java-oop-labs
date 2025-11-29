@@ -1,5 +1,6 @@
 package com.oop.labs.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,12 +16,15 @@ public class pointEntity {
     private UUID id;
     
     @NotNull(message = "Поле 'functionId' обязательное")
+    @JsonProperty("function_id")
     private UUID functionId;
     
     @NotNull(message = "Поле 'xValue' обязательное")
+    @JsonProperty("x_value")
     private double xValue;
 
     @NotNull(message = "Поле 'yValue' обязательное")
+    @JsonProperty("y_value")
     private double yValue;
 
     public UUID getId(){
