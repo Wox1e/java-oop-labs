@@ -1,0 +1,30 @@
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: labs-postgres
+    environment:
+      POSTGRES_DB: labsdb
+      POSTGRES_USER: labsuser
+      POSTGRES_PASSWORD: labspassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: labs-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/labsdb
+      SPRING_DATASOURCE_USERNAME: labsuser
+      SPRING_DATASOURCE_PASSWORD: labspassword
+
+volumes:
+  postgres_data:
+
