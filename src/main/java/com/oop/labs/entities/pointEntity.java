@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
@@ -12,8 +13,14 @@ public class pointEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
     private UUID id;
+    
+    @NotNull(message = "Поле 'functionId' обязательное")
     private UUID functionId;
+    
+    @NotNull(message = "Поле 'xValue' обязательное")
     private double xValue;
+
+    @NotNull(message = "Поле 'yValue' обязательное")
     private double yValue;
 
     public UUID getId(){

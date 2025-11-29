@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class UsersController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> save(@RequestBody userEntity user) {
+    public ResponseEntity<?> save(@Valid @RequestBody userEntity user) {
         logger.info("Сохраняем пользователя {}", user.getUsername());
         Optional<userEntity> existingUser = service.findUsersByUsername(user.getUsername());
         if (existingUser.isPresent()){

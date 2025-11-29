@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.*;
 
@@ -31,7 +32,7 @@ public class PointsController  {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> save(Authentication authentication, @RequestBody pointEntity point) {
+    public ResponseEntity<?> save(Authentication authentication, @Valid @RequestBody pointEntity point) {
         String username = authentication.getName();
         Optional<userEntity> user = userService.findUsersByUsername(username);
 
@@ -40,14 +41,6 @@ public class PointsController  {
         }
 
         UUID functionId = point.getFunction_id();
-        if (functionId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of(
-                            "status", "error",
-                            "message", "functionId is required",
-                            "timestamp", System.currentTimeMillis()
-                    ));
-        }
 
         Optional<functionEntity> function = functionService.findFunctionById(functionId);
         if (function.isEmpty() || !user.get().getId().equals(function.get().getAuthor_id())) {

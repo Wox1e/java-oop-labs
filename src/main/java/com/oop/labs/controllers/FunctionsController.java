@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.*;
 
@@ -28,7 +29,7 @@ public class FunctionsController{
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> save(Authentication authentication, @RequestBody functionEntity function) {
+    public ResponseEntity<?> save(Authentication authentication, @Valid @RequestBody functionEntity function) {
         String username = authentication.getName();
         Optional<userEntity> user = userService.findUsersByUsername(username);
 

@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
@@ -12,8 +14,13 @@ public class functionEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
     private UUID id;
+    
+    @NotBlank(message = "Поле 'name' обязательное")
     private String name;
+    
+    @NotBlank(message = "Поле 'type' обязательное")
     private String type;
+
     private UUID authorId;
 
 

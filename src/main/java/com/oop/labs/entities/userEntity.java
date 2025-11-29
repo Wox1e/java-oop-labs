@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.UUID;
 
@@ -12,7 +13,11 @@ public class userEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
     private UUID id;
+    
+    @NotBlank(message = "Поле 'username' обязательное")
     private String username;
+    
+    @NotBlank(message = "Поле 'password' обязательное")
     private String passwordHash;
 
 
