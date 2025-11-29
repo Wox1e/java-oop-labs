@@ -50,8 +50,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/users/",
-							"protocol": "http",
+							"raw": "localhost:8080/users/",
 							"host": [
 								"localhost"
 							],
@@ -110,8 +109,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/users/",
-							"protocol": "http",
+							"raw": "localhost:8080/users/",
 							"host": [
 								"localhost"
 							],
@@ -154,8 +152,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/users/ls2",
-							"protocol": "http",
+							"raw": "localhost:8080/users/ls2",
 							"host": [
 								"localhost"
 							],
@@ -205,8 +202,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/functions/",
-							"protocol": "http",
+							"raw": "localhost:8080/functions/",
 							"host": [
 								"localhost"
 							],
@@ -240,8 +236,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/functions/",
-							"protocol": "http",
+							"raw": "localhost:8080/functions/",
 							"host": [
 								"localhost"
 							],
@@ -277,8 +272,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/functions/d3898cc4-29fa-4164-88ed-6a5977abb953",
-							"protocol": "http",
+							"raw": "localhost:8080/functions/d3898cc4-29fa-4164-88ed-6a5977abb953",
 							"host": [
 								"localhost"
 							],
@@ -326,21 +320,26 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"try {\r",
-									"    const response = await pm.execution.runRequest(\"44053407-d345c947-511d-4e09-8dd9-036b270223d5\");\r",
-									"    const responseData = response.json();\r",
-									"    \r",
-									"    // Получаем ID из ответа\r",
-									"    const id = responseData.id;\r",
-									"    \r",
-									"    // Сохраняем в переменные окружения\r",
-									"    pm.environment.set(\"function_id\", id);\r",
-									"    \r",
-									"    console.log(\"ID сохранен:\", id);\r",
-									"    \r",
-									"} catch (err) {\r",
-									"    console.error(err);\r",
-									"}"
+									"// Обернуть весь код в async функцию\r",
+									"(async function() {\r",
+									"    try {\r",
+									"        const response = await pm.execution.runRequest(\"44053407-d345c947-511d-4e09-8dd9-036b270223d5\");\r",
+									"        const responseData = response.json();\r",
+									"        \r",
+									"        console.log(\"Полный ответ:\", JSON.stringify(responseData, null, 2));\r",
+									"        \r",
+									"        // Получаем ID из ответа\r",
+									"        const id = responseData.id;\r",
+									"        \r",
+									"        // Сохраняем в переменные окружения\r",
+									"        pm.environment.set(\"function_id\", id);\r",
+									"        \r",
+									"        console.log(\"ID сохранен:\", id);\r",
+									"        \r",
+									"    } catch (err) {\r",
+									"        console.error(err);\r",
+									"    }\r",
+									"})();"
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -371,8 +370,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/points/",
-							"protocol": "http",
+							"raw": "localhost:8080/points/",
 							"host": [
 								"localhost"
 							],
@@ -407,8 +405,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/points/",
-							"protocol": "http",
+							"raw": "localhost:8080/points/",
 							"host": [
 								"localhost"
 							],
@@ -457,7 +454,7 @@
 					"        mode: 'raw',",
 					"        raw: JSON.stringify({",
 					"            username: 'ls2',",
-					"            password_hash: '123'",
+					"            password: '123'",
 					"        })",
 					"    }",
 					"};",
@@ -469,12 +466,11 @@
 					"        return;",
 					"    }",
 					"    ",
-					"    if (response.code === 200 || response.code === 201) {",
+					"    if (response.code === 201) {",
 					"        const userData = response.json();",
 					"        // Сохраняем ID пользователя для использования в тестах",
-					"        if (userData.id) {",
-					"            pm.collectionVariables.set('user_id', userData.id);",
-					"        }",
+					"        pm.collectionVariables.set('user_id', userData.id);",
+					"        pm.collectionVariables.set('user_email', userData.email);",
 					"        console.log('User created successfully:', userData.id);",
 					"    } else {",
 					"        console.error('Failed to create user:', response.text());",
