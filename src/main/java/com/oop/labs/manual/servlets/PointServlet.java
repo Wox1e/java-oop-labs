@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-@WebServlet("/points")
+@WebServlet("/points/")
 public class PointServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(PointServlet.class);
     private final ObjectMapper objectMapper = new ObjectMapper();

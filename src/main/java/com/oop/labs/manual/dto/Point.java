@@ -7,9 +7,6 @@ public class Point {
     private double yValue;
 
     public Point() {
-        functionId = 1;
-        xValue = 0;
-        yValue = 0;
     }
 
     public Point(long functionId, double xValue, double yValue) {

@@ -14,9 +14,6 @@ public class Function {
 
 
     public Function() {
-        name = "name";
-        type = "type";
-        authorId = 1;
     }
     public Function(String name, String type, long authorId) {
         this.name = name;

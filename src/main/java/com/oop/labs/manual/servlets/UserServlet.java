@@ -7,7 +7,6 @@ import com.oop.labs.manual.util.DatabaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,14 +19,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@WebServlet("/users")
+@WebServlet("/users/")
 public class UserServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(UserServlet.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         logger.info("GET request received for users - ID parameter: {}", request.getParameter("id"));
 
         PrintWriter out = response.getWriter();
@@ -72,7 +71,7 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         logger.info("=== POST REQUEST START ===");
 
         response.setContentType("application/json");
@@ -99,7 +98,7 @@ public class UserServlet extends HttpServlet {
                 logger.info("SUCCESS: User found in DB - ID: {}, username: {}",
                         createdUser.get().getId(), createdUser.get().getUsername());
 
-                response.setStatus(HttpServletResponse.SC_CREATED);
+                response.setStatus(HttpServletResponse.SC_OK);
                 out.print(objectMapper.writeValueAsString(createdUser.get()));
             } else {
                 logger.error("FAILED: User not found in DB after creation! ID: {}", generatedId);
@@ -119,7 +118,7 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         logger.info("PUT request received for updating user");
 
         response.setContentType("application/json");
@@ -159,7 +158,7 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         String idParam = request.getParameter("id");
         logger.info("DELETE request received for user with ID: {}", idParam);
 

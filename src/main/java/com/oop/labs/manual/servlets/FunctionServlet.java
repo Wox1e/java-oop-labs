@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-@WebServlet("/functions")
+@WebServlet("/functions/")
 public class FunctionServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(FunctionServlet.class);
     private final ObjectMapper objectMapper = new ObjectMapper();

@@ -15,8 +15,6 @@ public class User {
     }
 
     public User() {
-        this.username = "Empty";
-        this.password_hash = "password";
     }
 
     public User(String username, String passwordHash) {
