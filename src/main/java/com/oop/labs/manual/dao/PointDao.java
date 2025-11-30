@@ -28,7 +28,7 @@ public class PointDao {
             int rs = stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1);
+                    return generatedKeys.getLong(1);
                 } else {
                     throw new SQLException("Не удалось получить сгенерированный ключ");
                 }
@@ -135,6 +135,36 @@ public class PointDao {
         return points;
     }
 
+
+    public List<Point> findByUserId(long userId) throws SQLException {
+        String sql = """
+                 SELECT p.* FROM points p\s
+                 JOIN functions f ON p.function_id = f.id\s
+                 WHERE f.author_id = ?
+                \s""";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            return extractPoints(resultSet);
+        }
+    }
+
+    public List<Point> findByUserIdOrderedBy(long userId, String orderBy, boolean reverse) throws SQLException {
+        String direction = reverse ? "DESC" : "ASC";
+        String sql = """
+                SELECT p.* FROM points p\s
+                JOIN functions f ON p.function_id = f.id\s
+                WHERE f.author_id = ?\s
+                ORDER BY p.""" + orderBy + " " + direction;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            return extractPoints(resultSet);
+        }
+    }
+
     public boolean update(Point point) throws SQLException {
         String sql = "UPDATE points SET function_id = ?, x_value = ?, y_value = ? WHERE id = ?";
 
@@ -194,7 +224,7 @@ public class PointDao {
         try {
             logger.info("Создаём DTO Point на основе данных из БД");
             long id = rs.getLong("id");
-            int functionId = rs.getInt("function_id");
+            long functionId = rs.getLong("function_id");
             double xValue = rs.getDouble("x_value");
             double yValue = rs.getDouble("y_value");
             logger.info("DTO Point успешно создано");
@@ -203,5 +233,14 @@ public class PointDao {
             logger.error("Ошибка создания DTO", e);
             throw new RuntimeException(e);
         }
+    }
+
+    private List<Point> extractPoints(ResultSet resultSet) throws SQLException {
+        List<Point> points = new ArrayList<>();
+        while (resultSet.next()) {
+            Point point = resultSetToPoint(resultSet);
+            points.add(point);
+        }
+        return points;
     }
 }

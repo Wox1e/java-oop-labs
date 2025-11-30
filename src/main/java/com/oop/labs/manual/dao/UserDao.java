@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class UserDao {
     private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
@@ -19,6 +17,11 @@ public class UserDao {
     }
 
     public long create(User user) {
+
+        Optional<User> existingUser = findByUsername(user.getUsername());
+        if (existingUser.isPresent()) {
+            throw new RuntimeException("User with this username already exists");
+        }
 
         String query = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
 
@@ -48,6 +51,7 @@ public class UserDao {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 User user = ResultSetToUser(rs);
+                loadRolesFromDatabase(user);
                 logger.info("Найден пользователь с id: {}", user.getId());
                 return Optional.of(user);
             }
@@ -66,6 +70,7 @@ public class UserDao {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 User user = ResultSetToUser(rs);
+                loadRolesFromDatabase(user);
                 logger.info("Найден пользователь с username: {}", user.getUsername());
                 return Optional.of(user);
             }
@@ -84,7 +89,9 @@ public class UserDao {
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
-                users.add(ResultSetToUser(rs));
+                User user = ResultSetToUser(rs);
+                loadRolesFromDatabase(user);
+                users.add(user);
             }
         } catch (SQLException e) {
             logger.error("Ошибка поиска всех пользователей", e);
@@ -103,7 +110,9 @@ public class UserDao {
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
-                users.add(ResultSetToUser(rs));
+                User user = ResultSetToUser(rs);
+                loadRolesFromDatabase(user);
+                users.add(user);
             }
             logger.info("Найдено пользователей с сортировкой: {}", users.size());
         } catch (SQLException e) {
@@ -157,6 +166,26 @@ public class UserDao {
             return new User(id, username, passwordHash);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void loadRolesFromDatabase(User user) {
+        String sql = "SELECT role FROM user_roles WHERE user_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, user.getId());
+            ResultSet rs = stmt.executeQuery();
+
+            Set<String> roles = new HashSet<>();
+            while (rs.next()) {
+                roles.add(rs.getString("role"));
+            }
+
+            user.setRoles(roles);
+            logger.debug("Загружены роли для пользователя {}: {}", user.getUsername(), roles);
+
+        } catch (SQLException e) {
+            logger.error("Ошибка загрузки ролей для пользователя с id: {}", user.getId(), e);
         }
     }
 

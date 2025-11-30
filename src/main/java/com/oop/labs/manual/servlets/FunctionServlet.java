@@ -2,8 +2,10 @@ package com.oop.labs.manual.servlets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oop.labs.manual.auth.AuthUtil;
 import com.oop.labs.manual.dao.FunctionDao;
 import com.oop.labs.manual.dto.Function;
+import com.oop.labs.manual.dto.User;
 import com.oop.labs.manual.util.DatabaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,16 @@ public class FunctionServlet extends HttpServlet {
                 request.getParameter("author_id"), request.getParameter("sort"),
                 request.getParameter("reverse"));
 
+        // 🔐 ДОБАВЛЕНО: Аутентификация - все операции с функциями требуют авторизации
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        // 🔐 ДОБАВЛЕНО: Авторизация - только USER и ADMIN могут работать с функциями
+        if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
+            AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
+            return;
+        }
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -46,13 +58,13 @@ public class FunctionServlet extends HttpServlet {
             String reverseParam = request.getParameter("reverse");
 
             if (idParam != null) {
-                handleFindById(functionDao, idParam, response, out);
+                handleFindById(functionDao, idParam, currentUser, response, out); // 🔐 Передаем currentUser
             } else if (nameParam != null) {
-                handleFindByName(functionDao, nameParam, response, out);
+                handleFindByName(functionDao, nameParam, currentUser, response, out); // 🔐 Передаем currentUser
             } else if (authorIdParam != null) {
-                handleFindByAuthorId(functionDao, authorIdParam, sortParam, reverseParam, response, out);
+                handleFindByAuthorId(functionDao, authorIdParam, sortParam, reverseParam, currentUser, response, out); // 🔐 Передаем currentUser
             } else {
-                handleFindAll(functionDao, sortParam, reverseParam, response, out);
+                handleFindAll(functionDao, sortParam, reverseParam, currentUser, response, out); // 🔐 Передаем currentUser
             }
         } catch (SQLException e) {
             logger.error("Database error during GET operation", e);
@@ -67,6 +79,14 @@ public class FunctionServlet extends HttpServlet {
             throws IOException {
         logger.info("POST request received for creating new function");
 
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
+            AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
+            return;
+        }
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -76,6 +96,8 @@ public class FunctionServlet extends HttpServlet {
 
             Function function = objectMapper.readValue(request.getReader(), Function.class);
             logger.debug("Creating function: {}", function.getName());
+
+            function.setAuthorId(currentUser.getId());
 
             int generatedId = functionDao.create(function);
             logger.info("Function created successfully with generated ID: {}", generatedId);
@@ -103,6 +125,15 @@ public class FunctionServlet extends HttpServlet {
             throws IOException {
         logger.info("PUT request received for updating function");
 
+        // 🔐 ДОБАВЛЕНО: Аутентификация и авторизация
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
+            AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
+            return;
+        }
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -112,6 +143,15 @@ public class FunctionServlet extends HttpServlet {
 
             Function updatedFunction = objectMapper.readValue(request.getReader(), Function.class);
             logger.debug("Updating function with ID: {}", updatedFunction.getId());
+
+            Optional<Function> existingFunction = functionDao.findById(updatedFunction.getId());
+            if (existingFunction.isPresent()) {
+                if (existingFunction.get().getAuthorId() != currentUser.getId() &&
+                        !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                    AuthUtil.sendForbidden(response, "You can only update your own functions");
+                    return;
+                }
+            }
 
             boolean updated = functionDao.update(updatedFunction);
 
@@ -144,6 +184,15 @@ public class FunctionServlet extends HttpServlet {
         String idParam = request.getParameter("id");
         logger.info("DELETE request received for function with ID: {}", idParam);
 
+        // 🔐 ДОБАВЛЕНО: Аутентификация и авторизация
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
+            AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
+            return;
+        }
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -154,6 +203,15 @@ public class FunctionServlet extends HttpServlet {
 
                 long id = Long.parseLong(idParam);
                 logger.debug("Attempting to delete function with ID: {}", id);
+
+                Optional<Function> function = functionDao.findById(id);
+                if (function.isPresent()) {
+                    if (function.get().getAuthorId() != currentUser.getId() &&
+                            !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                        AuthUtil.sendForbidden(response, "You can only delete your own functions");
+                        return;
+                    }
+                }
 
                 boolean deleted = functionDao.delete(id);
 
@@ -182,7 +240,8 @@ public class FunctionServlet extends HttpServlet {
         out.flush();
     }
 
-    private void handleFindById(FunctionDao functionDao, String idParam,
+    // 🔐 ОБНОВЛЕНО: Все методы теперь принимают currentUser для проверки прав
+    private void handleFindById(FunctionDao functionDao, String idParam, User currentUser,
                                 HttpServletResponse response, PrintWriter out) throws SQLException {
         try {
             long id = Long.parseLong(idParam);
@@ -191,6 +250,12 @@ public class FunctionServlet extends HttpServlet {
             Optional<Function> function = functionDao.findById(id);
 
             if (function.isPresent()) {
+                if (function.get().getAuthorId() != currentUser.getId() &&
+                        !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                    AuthUtil.sendForbidden(response, "Access denied to this function");
+                    return;
+                }
+
                 logger.info("Function found with ID: {}", id);
                 out.print(objectMapper.writeValueAsString(function.get()));
             } else {
@@ -205,7 +270,7 @@ public class FunctionServlet extends HttpServlet {
         }
     }
 
-    private void handleFindByName(FunctionDao functionDao, String name,
+    private void handleFindByName(FunctionDao functionDao, String name, User currentUser,
                                   HttpServletResponse response, PrintWriter out) throws SQLException, JsonProcessingException {
         logger.debug("Searching for function with name: {}", name);
 
@@ -222,11 +287,16 @@ public class FunctionServlet extends HttpServlet {
     }
 
     private void handleFindByAuthorId(FunctionDao functionDao, String authorIdParam,
-                                      String sortParam, String reverseParam,
+                                      String sortParam, String reverseParam, User currentUser,
                                       HttpServletResponse response, PrintWriter out) throws SQLException {
         try {
             long authorId = Long.parseLong(authorIdParam);
             List<Function> functions;
+
+            if (!AuthUtil.checkAuthorization(currentUser, "ADMIN") && currentUser.getId() != authorId) {
+                AuthUtil.sendForbidden(response, "You can only view your own functions");
+                return;
+            }
 
             logger.debug("Searching for functions by author ID: {}, sort: {}, reverse: {}",
                     authorId, sortParam, reverseParam);
@@ -251,16 +321,26 @@ public class FunctionServlet extends HttpServlet {
     }
 
     private void handleFindAll(FunctionDao functionDao, String sortParam, String reverseParam,
-                               HttpServletResponse response, PrintWriter out) throws SQLException, JsonProcessingException {
+                               User currentUser, HttpServletResponse response, PrintWriter out)
+            throws SQLException, JsonProcessingException {
         List<Function> functions;
 
         logger.debug("Retrieving all functions, sort: {}, reverse: {}", sortParam, reverseParam);
 
-        if (sortParam != null) {
-            boolean isReversed = "true".equalsIgnoreCase(reverseParam);
-            functions = functionDao.findAllOrderedBy(sortParam, isReversed);
+        if (AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+            if (sortParam != null) {
+                boolean isReversed = "true".equalsIgnoreCase(reverseParam);
+                functions = functionDao.findAllOrderedBy(sortParam, isReversed);
+            } else {
+                functions = functionDao.findAll();
+            }
         } else {
-            functions = functionDao.findAll();
+            if (sortParam != null) {
+                boolean isReversed = "true".equalsIgnoreCase(reverseParam);
+                functions = functionDao.findByAuthorIdOrderedBy(currentUser.getId(), sortParam, isReversed);
+            } else {
+                functions = functionDao.findByAuthorId(currentUser.getId());
+            }
         }
 
         logger.info("Retrieved {} functions", functions.size());

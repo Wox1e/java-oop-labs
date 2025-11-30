@@ -34,7 +34,7 @@ public class Point {
         return functionId;
     }
 
-    public void setFunctionId(int functionId) {
+    public void setFunctionId(long functionId) {
         this.functionId = functionId;
     }
 

@@ -2,8 +2,12 @@ package com.oop.labs.manual.servlets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oop.labs.manual.auth.AuthUtil;
+import com.oop.labs.manual.dao.FunctionDao;
 import com.oop.labs.manual.dao.PointDao;
+import com.oop.labs.manual.dto.Function;
 import com.oop.labs.manual.dto.Point;
+import com.oop.labs.manual.dto.User;
 import com.oop.labs.manual.util.DatabaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +35,14 @@ public class PointServlet extends HttpServlet {
                 request.getParameter("id"), request.getParameter("function_id"),
                 request.getParameter("sort"), request.getParameter("reverse"));
 
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
+            AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
+            return;
+        }
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -44,11 +56,11 @@ public class PointServlet extends HttpServlet {
             String reverseParam = request.getParameter("reverse");
 
             if (idParam != null) {
-                handleFindById(pointDao, idParam, response, out);
+                handleFindById(pointDao, idParam, currentUser, response, out);
             } else if (functionIdParam != null) {
-                handleFindByFunctionId(pointDao, functionIdParam, sortParam, reverseParam, response, out);
+                handleFindByFunctionId(pointDao, functionIdParam, sortParam, reverseParam, currentUser, response, out);
             } else {
-                handleFindAll(pointDao, sortParam, reverseParam, response, out);
+                handleFindAll(pointDao, sortParam, reverseParam, currentUser, response, out);
             }
         } catch (SQLException e) {
             logger.error("Database error during GET operation", e);
@@ -63,15 +75,39 @@ public class PointServlet extends HttpServlet {
             throws IOException {
         logger.info("POST request received for creating new point");
 
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
+            AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
+            return;
+        }
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
         try (Connection connection = DatabaseConnection.getConnection()) {
             PointDao pointDao = new PointDao(connection);
+            FunctionDao functionDao = new FunctionDao(connection);
 
             Point point = objectMapper.readValue(request.getReader(), Point.class);
             logger.debug("Creating point for function ID: {}", point.getFunctionId());
+
+            // 🔐 ПРОВЕРКА: Проверка что пользователь имеет доступ к функции
+            Optional<Function> function = functionDao.findById(point.getFunctionId());
+            if (function.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                out.print("{\"error\": \"Function not found\"}");
+                return;
+            }
+
+            // Проверка прав доступа к функции
+            if (function.get().getAuthorId() != currentUser.getId() &&
+                    !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                AuthUtil.sendForbidden(response, "Access denied to this function");
+                return;
+            }
 
             long generatedId = pointDao.create(point);
             logger.info("Point created successfully with generated ID: {}", generatedId);
@@ -99,32 +135,55 @@ public class PointServlet extends HttpServlet {
             throws IOException {
         logger.info("PUT request received for updating point");
 
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
+            AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
+            return;
+        }
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
         try (Connection connection = DatabaseConnection.getConnection()) {
             PointDao pointDao = new PointDao(connection);
+            FunctionDao functionDao = new FunctionDao(connection);
 
-            Point updatedPoint = objectMapper.readValue(request.getReader(), Point.class);
-            logger.debug("Updating point with ID: {}", updatedPoint.getId());
+            Point point = objectMapper.readValue(request.getReader(), Point.class);
 
-            boolean updated = pointDao.update(updatedPoint);
-
-            if (updated) {
-                logger.info("Point updated successfully with ID: {}", updatedPoint.getId());
-                Optional<Point> point = pointDao.findById(updatedPoint.getId());
-                if (point.isPresent()) {
-                    out.print(objectMapper.writeValueAsString(point.get()));
-                } else {
-                    logger.error("Failed to retrieve updated point with ID: {}", updatedPoint.getId());
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    out.print("{\"error\": \"Failed to retrieve updated point\"}");
-                }
-            } else {
-                logger.warn("Point not found for update with ID: {}", updatedPoint.getId());
+            // Проверяем существование точки
+            Optional<Point> existingPoint = pointDao.findById(point.getId());
+            if (existingPoint.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 out.print("{\"error\": \"Point not found\"}");
+                return;
+            }
+
+            // 🔐 ПРОВЕРКА: Проверка прав доступа к функции точки
+            Optional<Function> function = functionDao.findById(existingPoint.get().getFunctionId());
+            if (function.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                out.print("{\"error\": \"Function not found\"}");
+                return;
+            }
+
+            if (function.get().getAuthorId() != currentUser.getId() &&
+                    !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                AuthUtil.sendForbidden(response, "Access denied to this function");
+                return;
+            }
+
+            boolean updated = pointDao.update(point);
+            if (updated) {
+                logger.info("Point updated successfully with ID: {}", point.getId());
+                Optional<Point> updatedPoint = pointDao.findById(point.getId());
+                out.print(objectMapper.writeValueAsString(updatedPoint.get()));
+            } else {
+                logger.error("Failed to update point with ID: {}", point.getId());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.print("{\"error\": \"Failed to update point\"}");
             }
         } catch (Exception e) {
             logger.error("Error updating point", e);
@@ -137,56 +196,103 @@ public class PointServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        String idParam = request.getParameter("id");
-        String functionIdParam = request.getParameter("function_id");
-        logger.info("DELETE request received for points - id: {}, function_id: {}", idParam, functionIdParam);
+        logger.info("DELETE request received for point");
+
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
+            AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
+            return;
+        }
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
-        if (idParam != null) {
-            handleDeleteById(idParam, response, out);
-        } else if (functionIdParam != null) {
-            handleDeleteByFunctionId(functionIdParam, response, out);
-        } else {
-            logger.warn("DELETE request missing required ID or function_id parameter");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            out.print("{\"error\": \"ID or function_id parameter is required\"}");
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            PointDao pointDao = new PointDao(connection);
+            FunctionDao functionDao = new FunctionDao(connection);
+
+            String idParam = request.getParameter("id");
+            String functionIdParam = request.getParameter("function_id");
+
+            if (idParam != null) {
+                handleDeleteById(pointDao, functionDao, idParam, currentUser, response, out);
+            } else if (functionIdParam != null) {
+                handleDeleteByFunctionId(pointDao, functionDao, functionIdParam, currentUser, response, out);
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.print("{\"error\": \"Missing id or function_id parameter\"}");
+            }
+        } catch (SQLException e) {
+            logger.error("Database error during DELETE operation", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.print("{\"error\": \"Database error: " + e.getMessage() + "\"}");
         }
         out.flush();
     }
 
-    private void handleFindById(PointDao pointDao, String idParam,
+    private void handleFindById(PointDao pointDao, String idParam, User currentUser,
                                 HttpServletResponse response, PrintWriter out) throws SQLException {
         try {
             long id = Long.parseLong(idParam);
-            logger.debug("Searching for point with ID: {}", id);
-
             Optional<Point> point = pointDao.findById(id);
 
             if (point.isPresent()) {
-                logger.info("Point found with ID: {}", id);
+                if (!AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                    try (Connection connection = DatabaseConnection.getConnection()) {
+                        FunctionDao functionDao = new FunctionDao(connection);
+                        Optional<Function> function = functionDao.findById(point.get().getFunctionId());
+
+                        if (function.isEmpty()) {
+                            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                            out.print("{\"error\": \"Function not found\"}");
+                            return;
+                        }
+
+                        // Проверяем что пользователь является автором функции
+                        if (function.get().getAuthorId() != currentUser.getId()) {
+                            AuthUtil.sendForbidden(response, "Access denied to this point");
+                            return;
+                        }
+                    }
+                }
+
                 out.print(objectMapper.writeValueAsString(point.get()));
+                logger.info("Point found with ID: {}", id);
             } else {
-                logger.warn("Point not found with ID: {}", id);
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 out.print("{\"error\": \"Point not found\"}");
             }
         } catch (NumberFormatException | JsonProcessingException e) {
-            logger.error("Invalid ID format: {}", idParam, e);
+            logger.error("Invalid id format: {}", idParam, e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            out.print("{\"error\": \"Invalid ID format\"}");
+            out.print("{\"error\": \"Invalid id format\"}");
         }
     }
 
     private void handleFindByFunctionId(PointDao pointDao, String functionIdParam,
-                                        String sortParam, String reverseParam,
+                                        String sortParam, String reverseParam, User currentUser,
                                         HttpServletResponse response, PrintWriter out) throws SQLException {
-        try {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            FunctionDao functionDao = new FunctionDao(connection);
             long functionId = Long.parseLong(functionIdParam);
-            List<Point> points;
 
+            Optional<Function> function = functionDao.findById(functionId);
+            if (function.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                out.print("{\"error\": \"Function not found\"}");
+                return;
+            }
+
+            if (function.get().getAuthorId() != currentUser.getId() &&
+                    !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                AuthUtil.sendForbidden(response, "Access denied to this function");
+                return;
+            }
+
+            List<Point> points;
             logger.debug("Searching for points by function ID: {}, sort: {}, reverse: {}",
                     functionId, sortParam, reverseParam);
 
@@ -207,75 +313,106 @@ public class PointServlet extends HttpServlet {
     }
 
     private void handleFindAll(PointDao pointDao, String sortParam, String reverseParam,
-                               HttpServletResponse response, PrintWriter out) throws SQLException, JsonProcessingException {
+                               User currentUser, HttpServletResponse response, PrintWriter out)
+            throws SQLException, JsonProcessingException {
         List<Point> points;
 
         logger.debug("Retrieving all points, sort: {}, reverse: {}", sortParam, reverseParam);
 
-        if (sortParam != null) {
-            boolean isReversed = "true".equalsIgnoreCase(reverseParam);
-            points = pointDao.findAllOrderedBy(sortParam, isReversed);
+        if (AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+            if (sortParam != null) {
+                boolean isReversed = "true".equalsIgnoreCase(reverseParam);
+                points = pointDao.findAllOrderedBy(sortParam, isReversed);
+            } else {
+                points = pointDao.findAll();
+            }
         } else {
-            points = pointDao.findAll();
+            if (sortParam != null) {
+                boolean isReversed = "true".equalsIgnoreCase(reverseParam);
+                points = pointDao.findByUserIdOrderedBy(currentUser.getId(), sortParam, isReversed);
+            } else {
+                points = pointDao.findByUserId(currentUser.getId());
+            }
         }
 
         logger.info("Retrieved {} points", points.size());
         out.print(objectMapper.writeValueAsString(points));
     }
 
-    private void handleDeleteById(String idParam, HttpServletResponse response, PrintWriter out) {
-        try (Connection connection = DatabaseConnection.getConnection()) {
-            PointDao pointDao = new PointDao(connection);
-
+    private void handleDeleteById(PointDao pointDao, FunctionDao functionDao, String idParam,
+                                  User currentUser, HttpServletResponse response, PrintWriter out)
+            throws SQLException {
+        try {
             long id = Long.parseLong(idParam);
-            logger.debug("Attempting to delete point with ID: {}", id);
+
+            Optional<Point> point = pointDao.findById(id);
+            if (point.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                out.print("{\"error\": \"Point not found\"}");
+                return;
+            }
+
+            Optional<Function> function = functionDao.findById(point.get().getFunctionId());
+            if (function.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                out.print("{\"error\": \"Function not found\"}");
+                return;
+            }
+
+            if (function.get().getAuthorId() != currentUser.getId() &&
+                    !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                AuthUtil.sendForbidden(response, "Access denied to this function");
+                return;
+            }
 
             boolean deleted = pointDao.delete(id);
-
             if (deleted) {
                 logger.info("Point deleted successfully with ID: {}", id);
                 out.print("{\"message\": \"Point deleted successfully\"}");
             } else {
-                logger.warn("Point not found for deletion with ID: {}", id);
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                out.print("{\"error\": \"Point not found\"}");
+                logger.error("Failed to delete point with ID: {}", id);
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.print("{\"error\": \"Failed to delete point\"}");
             }
         } catch (NumberFormatException e) {
-            logger.error("Invalid ID format: {}", idParam, e);
+            logger.error("Invalid id format: {}", idParam, e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            out.print("{\"error\": \"Invalid ID format\"}");
-        } catch (SQLException e) {
-            logger.error("Database error during DELETE operation", e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.print("{\"error\": \"Database error: " + e.getMessage() + "\"}");
+            out.print("{\"error\": \"Invalid id format\"}");
         }
     }
 
-    private void handleDeleteByFunctionId(String functionIdParam, HttpServletResponse response, PrintWriter out) {
-        try (Connection connection = DatabaseConnection.getConnection()) {
-            PointDao pointDao = new PointDao(connection);
-
+    private void handleDeleteByFunctionId(PointDao pointDao, FunctionDao functionDao, String functionIdParam,
+                                          User currentUser, HttpServletResponse response, PrintWriter out)
+            throws SQLException {
+        try {
             long functionId = Long.parseLong(functionIdParam);
-            logger.debug("Attempting to delete all points for function ID: {}", functionId);
+
+            Optional<Function> function = functionDao.findById(functionId);
+            if (function.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                out.print("{\"error\": \"Function not found\"}");
+                return;
+            }
+
+            if (function.get().getAuthorId() != currentUser.getId() &&
+                    !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                AuthUtil.sendForbidden(response, "Access denied to this function");
+                return;
+            }
 
             boolean deleted = pointDao.deleteByFunctionId(functionId);
-
             if (deleted) {
                 logger.info("All points deleted successfully for function ID: {}", functionId);
                 out.print("{\"message\": \"All points for function deleted successfully\"}");
             } else {
-                logger.warn("No points found for deletion with function ID: {}", functionId);
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                out.print("{\"error\": \"No points found for this function\"}");
+                logger.error("Failed to delete points for function ID: {}", functionId);
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.print("{\"error\": \"Failed to delete points for function\"}");
             }
         } catch (NumberFormatException e) {
             logger.error("Invalid function_id format: {}", functionIdParam, e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             out.print("{\"error\": \"Invalid function_id format\"}");
-        } catch (SQLException e) {
-            logger.error("Database error during DELETE operation", e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.print("{\"error\": \"Database error: " + e.getMessage() + "\"}");
         }
     }
 }

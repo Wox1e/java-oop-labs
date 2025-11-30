@@ -1,6 +1,7 @@
 package com.oop.labs.manual.servlets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oop.labs.manual.auth.AuthUtil;
 import com.oop.labs.manual.dao.UserDao;
 import com.oop.labs.manual.dto.User;
 import com.oop.labs.manual.util.DatabaseConnection;
@@ -31,6 +32,9 @@ public class UserServlet extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
         try (Connection connection = DatabaseConnection.getConnection()) {
             UserDao userDao = new UserDao(connection);
             String idParam = request.getParameter("id");
@@ -39,6 +43,11 @@ public class UserServlet extends HttpServlet {
                 try {
                     long id = Long.parseLong(idParam);
                     logger.debug("Searching for user with ID: {}", id);
+
+                    if (!AuthUtil.checkAuthorization(currentUser, "ADMIN") && currentUser.getId() != id) {
+                        AuthUtil.sendForbidden(response, "You can only view your own profile");
+                        return;
+                    }
 
                     Optional<User> user = userDao.findById(id);
 
@@ -56,6 +65,11 @@ public class UserServlet extends HttpServlet {
                     out.print("{\"error\": \"Invalid ID format\"}");
                 }
             } else {
+                if (!AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+                    AuthUtil.sendForbidden(response, "ADMIN role required to view all users");
+                    return;
+                }
+
                 logger.debug("Retrieving all users");
                 List<User> users = userDao.findAll();
                 logger.info("Retrieved {} users", users.size());
@@ -121,6 +135,9 @@ public class UserServlet extends HttpServlet {
             throws IOException {
         logger.info("PUT request received for updating user");
 
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -130,6 +147,11 @@ public class UserServlet extends HttpServlet {
 
             User updatedUser = objectMapper.readValue(request.getReader(), User.class);
             logger.debug("Updating user with ID: {}", updatedUser.getId());
+
+            if (!AuthUtil.checkAuthorization(currentUser, "ADMIN") && currentUser.getId() != updatedUser.getId()) {
+                AuthUtil.sendForbidden(response, "You can only update your own profile");
+                return;
+            }
 
             boolean updated = userDao.update(updatedUser);
 
@@ -162,6 +184,14 @@ public class UserServlet extends HttpServlet {
         String idParam = request.getParameter("id");
         logger.info("DELETE request received for user with ID: {}", idParam);
 
+        User currentUser = AuthUtil.authenticate(request, response);
+        if (currentUser == null) return;
+
+        if (!AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
+            AuthUtil.sendForbidden(response, "ADMIN role required to delete users");
+            return;
+        }
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -172,6 +202,11 @@ public class UserServlet extends HttpServlet {
 
                 long id = Long.parseLong(idParam);
                 logger.debug("Attempting to delete user with ID: {}", id);
+
+                if (currentUser.getId() == id) {
+                    AuthUtil.sendForbidden(response, "You cannot delete your own account");
+                    return;
+                }
 
                 boolean deleted = userDao.delete(id);
 

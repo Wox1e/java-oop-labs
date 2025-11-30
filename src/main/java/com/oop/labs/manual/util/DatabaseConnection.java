@@ -29,8 +29,14 @@ public class DatabaseConnection {
 
             stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                     "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
-                    "username VARCHAR(50), " +
+                    "username VARCHAR(50) UNIQUE, " +
                     "password_hash VARCHAR(100))");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS user_roles (" +
+                    "user_id BIGINT, " +
+                    "role VARCHAR(50), " +
+                    "PRIMARY KEY (user_id, role), " +
+                    "FOREIGN KEY (user_id) REFERENCES users(id))");
 
             stmt.execute("CREATE TABLE IF NOT EXISTS functions (" +
                     "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
@@ -44,7 +50,20 @@ public class DatabaseConnection {
                     "x_value DOUBLE, " +
                     "y_value DOUBLE)");
 
+            initializeDefaultUsers(stmt);
+
             System.out.println("H2 Database initialized successfully!");
         }
+    }
+
+    private static void initializeDefaultUsers(Statement stmt) throws SQLException {
+        // Создаем администратора
+        stmt.execute("INSERT INTO users (username, password_hash) VALUES ('admin', 'admin123')");
+        stmt.execute("INSERT INTO user_roles (user_id, role) VALUES (1, 'ADMIN')");
+        stmt.execute("INSERT INTO user_roles (user_id, role) VALUES (1, 'USER')");
+
+        // Создаем обычного пользователя
+        stmt.execute("INSERT INTO users (username, password_hash) VALUES ('user', 'user123')");
+        stmt.execute("INSERT INTO user_roles (user_id, role) VALUES (2, 'USER')");
     }
 }
