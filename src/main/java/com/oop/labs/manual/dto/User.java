@@ -9,6 +9,11 @@ public class User {
         return username.equals(obj.username) && id == obj.id;
     }
 
+    public User() {
+        this.username = "Empty";
+        this.passwordHash = "password";
+    }
+
     public User(String username, String passwordHash) {
         this.passwordHash = passwordHash;
         this.username = username;
@@ -20,7 +25,7 @@ public class User {
         this.username = username;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

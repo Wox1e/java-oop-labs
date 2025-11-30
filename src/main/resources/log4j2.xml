@@ -6,7 +6,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="debug">
+        <Logger name="com.oop.labs.manual" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Root level="INFO">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
