@@ -9,7 +9,6 @@
     <artifactId>labs-manual</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
-    <name>labs-manual</name>
     <description>Manual Tomcat Application</description>
 
     <properties>
@@ -95,7 +94,7 @@
     </dependencies>
 
     <build>
-        <finalName>labs-manual</finalName>
+        <finalName>ROOT</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

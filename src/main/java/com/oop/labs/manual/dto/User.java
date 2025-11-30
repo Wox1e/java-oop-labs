@@ -1,9 +1,14 @@
 package com.oop.labs.manual.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class User {
+    @JsonProperty("id")
     private long id;
+    @JsonProperty("username")
     private String username;
-    private String passwordHash;
+    @JsonProperty("password_hash")
+    private String password_hash;
 
     public boolean equals(User obj) {
         return username.equals(obj.username) && id == obj.id;
@@ -11,17 +16,17 @@ public class User {
 
     public User() {
         this.username = "Empty";
-        this.passwordHash = "password";
+        this.password_hash = "password";
     }
 
     public User(String username, String passwordHash) {
-        this.passwordHash = passwordHash;
+        this.password_hash = passwordHash;
         this.username = username;
     }
 
     public User(long id, String username, String passwordHash) {
         this.id = id;
-        this.passwordHash = passwordHash;
+        this.password_hash = passwordHash;
         this.username = username;
     }
 
@@ -37,15 +42,15 @@ public class User {
         this.username = username;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public String getPassword_hash() {
+        return password_hash;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public void setPassword_hash(String passwordHash) {
+        this.password_hash = passwordHash;
     }
 }

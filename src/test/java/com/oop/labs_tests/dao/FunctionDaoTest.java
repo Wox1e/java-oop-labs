@@ -22,7 +22,7 @@ public class FunctionDaoTest {
     private static FunctionDao functionDao;
     private static UserDao userDao;
     private static Connection testConnection;
-    private static int testUserId;
+    private static long testUserId;
 
     @BeforeAll
     static void setup() {
@@ -144,7 +144,7 @@ public class FunctionDaoTest {
     void findByAuthorId() throws SQLException {
         // Создаем второго пользователя
         User user2 = new User("test_user_2_" + System.currentTimeMillis(), "hash2");
-        int user2Id = userDao.create(user2);
+        long user2Id = userDao.create(user2);
 
         Function function1 = new Function("func1", "type1", testUserId);
         Function function2 = new Function("func2", "type2", testUserId);

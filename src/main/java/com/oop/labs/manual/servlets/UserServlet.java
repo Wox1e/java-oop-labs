@@ -73,32 +73,47 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        // ВРЕМЕННАЯ ДИАГНОСТИКА
-        System.out.println("=== POST REQUEST RECEIVED ===");
+        logger.info("=== POST REQUEST START ===");
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
-        try {
-            // Получаем сырой JSON
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            UserDao userDao = new UserDao(connection);
+
             String rawJson = request.getReader().lines().collect(Collectors.joining());
-            System.out.println("Raw JSON: " + rawJson);
+            logger.debug("Raw JSON: {}", rawJson);
 
-            // Пробуем распарсить
-            System.out.println("Attempting to parse JSON...");
             User user = objectMapper.readValue(rawJson, User.class);
-            System.out.println("Success! Username: " + user.getUsername());
+            logger.info("Parsed user - username: {}", user.getUsername());
 
-            out.print("{\"status\": \"success\", \"username\": \"" + user.getUsername() + "\"}");
+            logger.info("Attempting to create user in database...");
+            long generatedId = userDao.create(user);
+            logger.info("User created with generated ID: {}", generatedId);
+
+            logger.info("Verifying user in database...");
+            Optional<User> createdUser = userDao.findById(generatedId);
+
+            if (createdUser.isPresent()) {
+                logger.info("SUCCESS: User found in DB - ID: {}, username: {}",
+                        createdUser.get().getId(), createdUser.get().getUsername());
+
+                response.setStatus(HttpServletResponse.SC_CREATED);
+                out.print(objectMapper.writeValueAsString(createdUser.get()));
+            } else {
+                logger.error("FAILED: User not found in DB after creation! ID: {}", generatedId);
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.print("{\"error\": \"Failed to create user\"}");
+            }
 
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error creating user: {}", e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            out.print("{\"error\": \"JSON parse error: " + e.getMessage() + "\"}");
+            out.print("{\"error\": \"Invalid user data: " + e.getMessage() + "\"}");
         }
+
+        logger.info("=== POST REQUEST END ===");
         out.flush();
     }
 

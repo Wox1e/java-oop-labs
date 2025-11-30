@@ -18,18 +18,18 @@ public class UserDao {
         this.connection = connection;
     }
 
-    public int create(User user) {
+    public long create(User user) {
 
         String query = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPasswordHash());
+            stmt.setString(2, user.getPassword_hash());
             int rs = stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1);
+                    return generatedKeys.getLong(1);
                 } else {
                     throw new SQLException("Не удалось получить сгенерированный ключ");
                 }
@@ -117,7 +117,7 @@ public class UserDao {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPasswordHash());
+            stmt.setString(2, user.getPassword_hash());
             stmt.setLong(3, user.getId());
 
             int rowsAffected = stmt.executeUpdate();

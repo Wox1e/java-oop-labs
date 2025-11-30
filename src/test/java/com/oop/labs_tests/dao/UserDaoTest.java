@@ -3,11 +3,11 @@ package com.oop.labs_tests.dao;
 import com.oop.labs.manual.dao.UserDao;
 import com.oop.labs.manual.dto.User;
 import com.oop.labs_tests.MockDBConnection;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -79,7 +79,7 @@ public class UserDaoTest {
     @Test
     void findExistingUserById() {
         User expectedUser = new User("test_user", "password_hash");
-        int userId = userDao.create(expectedUser);
+        long userId = userDao.create(expectedUser);
 
         Optional<User> result = userDao.findById(userId);
 
@@ -87,7 +87,7 @@ public class UserDaoTest {
         User user = result.get();
         assertEquals(userId, user.getId());
         assertEquals("test_user", user.getUsername());
-        assertEquals("password_hash", user.getPasswordHash());
+        assertEquals("password_hash", user.getPassword_hash());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class UserDaoTest {
 
         assertTrue(result.isPresent());
         assertEquals("bebeboba", result.get().getUsername());
-        assertEquals("hehehash", result.get().getPasswordHash());
+        assertEquals("hehehash", result.get().getPassword_hash());
     }
 
     @Test
