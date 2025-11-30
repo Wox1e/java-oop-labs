@@ -1,11 +1,23 @@
 package com.oop.labs.manual.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Function {
+    @JsonProperty("id")
     private long id;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("type")
     private String type;
+    @JsonProperty("authorId")
     private long authorId;
 
+
+    public Function() {
+        name = "name";
+        type = "type";
+        authorId = 1;
+    }
     public Function(String name, String type, long authorId) {
         this.name = name;
         this.type = type;

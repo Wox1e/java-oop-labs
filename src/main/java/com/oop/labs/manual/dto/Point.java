@@ -1,11 +1,16 @@
 package com.oop.labs.manual.dto;
 
-
 public class Point {
     private long id;
     private long functionId;
     private double xValue;
     private double yValue;
+
+    public Point() {
+        functionId = 1;
+        xValue = 0;
+        yValue = 0;
+    }
 
     public Point(long functionId, double xValue, double yValue) {
         this.functionId = functionId;
