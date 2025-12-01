@@ -34,11 +34,9 @@ public class FunctionServlet extends HttpServlet {
                 request.getParameter("author_id"), request.getParameter("sort"),
                 request.getParameter("reverse"));
 
-        // 🔐 ДОБАВЛЕНО: Аутентификация - все операции с функциями требуют авторизации
         User currentUser = AuthUtil.authenticate(request, response);
         if (currentUser == null) return;
 
-        // 🔐 ДОБАВЛЕНО: Авторизация - только USER и ADMIN могут работать с функциями
         if (!AuthUtil.checkAuthorization(currentUser, "USER")) {
             AuthUtil.sendForbidden(response, "Insufficient permissions. USER role required");
             return;
@@ -125,7 +123,6 @@ public class FunctionServlet extends HttpServlet {
             throws IOException {
         logger.info("PUT request received for updating function");
 
-        // 🔐 ДОБАВЛЕНО: Аутентификация и авторизация
         User currentUser = AuthUtil.authenticate(request, response);
         if (currentUser == null) return;
 
@@ -240,7 +237,6 @@ public class FunctionServlet extends HttpServlet {
         out.flush();
     }
 
-    // 🔐 ОБНОВЛЕНО: Все методы теперь принимают currentUser для проверки прав
     private void handleFindById(FunctionDao functionDao, String idParam, User currentUser,
                                 HttpServletResponse response, PrintWriter out) throws SQLException {
         try {

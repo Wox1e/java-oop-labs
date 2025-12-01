@@ -94,7 +94,6 @@ public class PointServlet extends HttpServlet {
             Point point = objectMapper.readValue(request.getReader(), Point.class);
             logger.debug("Creating point for function ID: {}", point.getFunctionId());
 
-            // 🔐 ПРОВЕРКА: Проверка что пользователь имеет доступ к функции
             Optional<Function> function = functionDao.findById(point.getFunctionId());
             if (function.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -102,7 +101,6 @@ public class PointServlet extends HttpServlet {
                 return;
             }
 
-            // Проверка прав доступа к функции
             if (function.get().getAuthorId() != currentUser.getId() &&
                     !AuthUtil.checkAuthorization(currentUser, "ADMIN")) {
                 AuthUtil.sendForbidden(response, "Access denied to this function");
@@ -153,7 +151,6 @@ public class PointServlet extends HttpServlet {
 
             Point point = objectMapper.readValue(request.getReader(), Point.class);
 
-            // Проверяем существование точки
             Optional<Point> existingPoint = pointDao.findById(point.getId());
             if (existingPoint.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -161,7 +158,6 @@ public class PointServlet extends HttpServlet {
                 return;
             }
 
-            // 🔐 ПРОВЕРКА: Проверка прав доступа к функции точки
             Optional<Function> function = functionDao.findById(existingPoint.get().getFunctionId());
             if (function.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
