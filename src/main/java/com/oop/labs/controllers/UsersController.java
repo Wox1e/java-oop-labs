@@ -39,7 +39,7 @@ public class UsersController {
                             "timestamp", System.currentTimeMillis()
                     ));
         }
-
+        // Принимаем "password" из user, сохраняем через сервис (service.saveUser сам захеширует)
         service.saveUser(user);
         logger.info("Пользователь сохранён");
         return ResponseEntity.ok()
@@ -51,8 +51,62 @@ public class UsersController {
                 ));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> payload) {
+        String username = payload.get("username");
+        String password = payload.get("password");
+
+        if (username == null || password == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", "Username and password are required",
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
+        Optional<userEntity> userOpt = service.findUsersByUsername(username);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "status", "error",
+                "message", "Invalid credentials",
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
+        userEntity user = userOpt.get();
+        boolean valid = service.checkPassword(user, password);
+        if (!valid) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "status", "error",
+                "message", "Invalid credentials",
+                "timestamp", System.currentTimeMillis()
+            ));
+        }
+        // build response map with only public data
+        Map<String,Object> data = Map.of(
+            "id", user.getId(),
+            "username", user.getUsername()
+        );
+        return ResponseEntity.ok(Map.of(
+            "status", "success",
+            "user", data,
+            "timestamp", System.currentTimeMillis()
+        ));
+    }
+
     @GetMapping("/{username}")
-    public ResponseEntity<?> getByUsername(@PathVariable String username) {
+    public ResponseEntity<?> getByUsername(
+            @PathVariable String username,
+            @RequestHeader(value = "X-API-KEY", required = false) String apiKey
+    ) {
+        final String FIXED_API_KEY = "my-secret-key";
+        if (apiKey == null || !apiKey.equals(FIXED_API_KEY)) {
+            logger.warn("Попытка доступа с неверным или отсутствующим ключом X-API-KEY");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "Invalid or missing API key",
+                            "timestamp", System.currentTimeMillis()
+                    ));
+        }
         logger.info("Ищем пользователя по username: {}", username);
 
         try {

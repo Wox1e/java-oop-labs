@@ -9,7 +9,6 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<userEntity, UUID> {
     Optional<userEntity> findByUsername(String username);
-    List<userEntity> findByPasswordHash(String passwordHash);
 
 
 }

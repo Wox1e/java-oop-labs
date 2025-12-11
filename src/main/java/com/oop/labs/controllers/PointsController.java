@@ -62,6 +62,53 @@ public class PointsController  {
         ));
     }
 
+    @PostMapping("/bulk")
+    public ResponseEntity<?> saveMany(Authentication authentication, @Valid @RequestBody List<pointEntity> points) {
+        String username = authentication.getName();
+        Optional<userEntity> user = userService.findUsersByUsername(username);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (points == null || points.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "Список точек пуст",
+                    "timestamp", System.currentTimeMillis()
+            ));
+        }
+
+        UUID functionId = points.get(0).getFunction_id();
+        boolean sameFunction = points.stream().allMatch(p -> functionId.equals(p.getFunction_id()));
+        if (!sameFunction) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "Все точки должны принадлежать одной функции",
+                    "timestamp", System.currentTimeMillis()
+            ));
+        }
+
+        Optional<functionEntity> function = functionService.findFunctionById(functionId);
+        if (function.isEmpty() || !user.get().getId().equals(function.get().getAuthor_id())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "Access denied to function: " + functionId,
+                            "timestamp", System.currentTimeMillis()
+                    ));
+        }
+
+        List<pointEntity> saved = pointService.savePoints(points);
+        logger.info("Сохранили {} точек для функции {} и пользователя {}", saved.size(), functionId, username);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "status", "success",
+                "created", true,
+                "count", saved.size(),
+                "timestamp", System.currentTimeMillis()
+        ));
+    }
+
     @GetMapping("/")
     public ResponseEntity<?> get(Authentication authentication,
                                  @RequestParam(required = false) UUID functionId,

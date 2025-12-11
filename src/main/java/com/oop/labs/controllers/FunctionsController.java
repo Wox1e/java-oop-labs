@@ -130,5 +130,139 @@ public class FunctionsController{
         }
     }
 
+    @DeleteMapping("/{function_id}")
+    public ResponseEntity<?> deleteFunction(Authentication authentication, @PathVariable UUID function_id) {
+        logger.info("Попытка удаления функции с id: {}", function_id);
+        
+        try {
+            String username = authentication.getName();
+            Optional<userEntity> user = userService.findUsersByUsername(username);
+            
+            if (user.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            
+            UUID userId = user.get().getId();
+            
+            // Проверяем существование функции и принадлежность пользователю
+            Optional<functionEntity> function = service.findFunctionById(function_id);
+            
+            if (function.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "status", "error",
+                                "message", "Function not found",
+                                "timestamp", System.currentTimeMillis()
+                        ));
+            }
+            
+            if (!function.get().getAuthor_id().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of(
+                                "status", "error",
+                                "message", "Access denied",
+                                "timestamp", System.currentTimeMillis()
+                        ));
+            }
+            
+            // Удаляем функцию
+            service.deleteFunctionById(function_id);
+            
+            logger.info("Функция с id {} удалена пользователем {}", function_id, username);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Function deleted successfully",
+                    "timestamp", System.currentTimeMillis()
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Ошибка при удалении функции с id: {}", function_id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "Internal server error",
+                            "timestamp", System.currentTimeMillis()
+                    ));
+        }
+    }
 
+    @PutMapping("/{function_id}")
+    public ResponseEntity<?> updateFunction(Authentication authentication,
+                                            @PathVariable UUID function_id,
+                                            @RequestBody Map<String, Object> payload) {
+        logger.info("Попытка обновления функции с id: {}", function_id);
+
+        try {
+            String username = authentication.getName();
+            Optional<userEntity> user = userService.findUsersByUsername(username);
+
+            if (user.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            Optional<functionEntity> functionOpt = service.findFunctionById(function_id);
+            if (functionOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "status", "error",
+                                "message", "Function not found",
+                                "timestamp", System.currentTimeMillis()
+                        ));
+            }
+
+            functionEntity function = functionOpt.get();
+            if (!function.getAuthor_id().equals(user.get().getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of(
+                                "status", "error",
+                                "message", "Access denied",
+                                "timestamp", System.currentTimeMillis()
+                        ));
+            }
+
+            // Обновляем только разрешенные поля
+            if (payload.containsKey("name")) {
+                String name = Objects.toString(payload.get("name"), "").trim();
+                if (name.isEmpty()) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                            "status", "error",
+                            "message", "Name cannot be empty",
+                            "timestamp", System.currentTimeMillis()
+                    ));
+                }
+                function.setName(name);
+            }
+
+            if (payload.containsKey("type")) {
+                String type = Objects.toString(payload.get("type"), "").trim();
+                if (type.isEmpty()) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                            "status", "error",
+                            "message", "Type cannot be empty",
+                            "timestamp", System.currentTimeMillis()
+                    ));
+                }
+                function.setType(type);
+            }
+
+            functionEntity saved = service.saveFunction(function);
+            logger.info("Функция {} обновлена пользователем {}", saved.getId(), username);
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "updated", true,
+                    "data", saved,
+                    "timestamp", System.currentTimeMillis()
+            ));
+
+        } catch (Exception e) {
+            logger.error("Ошибка при обновлении функции с id: {}", function_id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "Internal server error",
+                            "timestamp", System.currentTimeMillis()
+                    ));
+        }
+    }
 }

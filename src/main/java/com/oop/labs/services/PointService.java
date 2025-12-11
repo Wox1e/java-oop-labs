@@ -114,6 +114,14 @@ public class PointService extends com.oop.labs.services.Service {
     }
 
     @Transactional
+    public List<pointEntity> savePoints(List<pointEntity> points) {
+        logger.info("Сохранение списка точек, количество: {}", points.size());
+        List<pointEntity> saved = pointRepository.saveAll(points);
+        logger.debug("Сохранено точек: {}", saved.size());
+        return saved;
+    }
+
+    @Transactional
     public void deletePointById(UUID id) {
         logger.info("Удаление точки по ID: {}", id);
         pointRepository.deleteById(id);

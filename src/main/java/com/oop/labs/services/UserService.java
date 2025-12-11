@@ -40,13 +40,6 @@ public class UserService {
         return users;
     }
 
-    public List<userEntity> findUsersByPasswordHash(String passwordHash) {
-        logger.info("Поиск пользователей по passwordHash");
-        List<userEntity> users = userRepository.findByPasswordHash(passwordHash);
-        logger.debug("Найдено пользователей: {}", users.size());
-        return users;
-    }
-
     public List<userEntity> findAllUsersSortedById(Sort.Direction direction) {
         logger.info("Получение пользователей, отсортированных по ID ({})", direction);
         return userRepository.findAll(Sort.by(direction == null ? Sort.Direction.ASC : direction, "id"));
@@ -57,17 +50,12 @@ public class UserService {
         return userRepository.findAll(Sort.by(direction == null ? Sort.Direction.ASC : direction, "username"));
     }
 
-    public List<userEntity> findAllUsersSortedByPasswordHash(Sort.Direction direction) {
-        logger.info("Получение пользователей, отсортированных по passwordHash ({})", direction);
-        return userRepository.findAll(Sort.by(direction == null ? Sort.Direction.ASC : direction, "passwordHash"));
-    }
-
     @Transactional
     public userEntity createUser(String username, String password) {
         logger.info("Создание нового пользователя с username: {}", username);
         userEntity user = new userEntity();
         user.setUsername(username);
-        user.setPassword_hash(passwordEncoder.encode(password));
+        user.setPassword(passwordEncoder.encode(password));
         userEntity saved = userRepository.save(user);
         logger.debug("Пользователь создан с ID: {}", saved.getId());
         return saved;
@@ -76,8 +64,8 @@ public class UserService {
     @Transactional
     public userEntity saveUser(userEntity user) {
         logger.info("Сохранение пользователя с ID: {}", user.getId());
-        if (user.getPassword_hash() != null) {
-            user.setPassword_hash(passwordEncoder.encode(user.getPassword_hash()));
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         userEntity saved = userRepository.save(user);
         logger.debug("Пользователь сохранён: {}", saved.getUsername());
@@ -96,6 +84,11 @@ public class UserService {
         logger.info("Удаление пользователя: {}", user.getUsername());
         userRepository.delete(user);
         logger.debug("Пользователь {} удалён", user.getUsername());
+    }
+
+    public boolean checkPassword(userEntity user, String password) {
+        if (user == null || password == null) return false;
+        return passwordEncoder.matches(password, user.getPassword());
     }
 }
 

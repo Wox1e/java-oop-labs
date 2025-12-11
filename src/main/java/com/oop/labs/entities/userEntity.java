@@ -19,8 +19,7 @@ public class userEntity {
     private String username;
     
     @NotBlank(message = "Поле 'password' обязательное")
-    @JsonProperty("password_hash")
-    private String passwordHash;
+    private String password;
 
 
     public UUID getId(){
@@ -40,12 +39,11 @@ public class userEntity {
     }
 
 
-    public String getPassword_hash(){
-        return this.passwordHash;
+    public String getPassword() {
+        return this.password;
     }
-
-    public void setPassword_hash(String password_hash) {
-        this.passwordHash = password_hash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
 }
