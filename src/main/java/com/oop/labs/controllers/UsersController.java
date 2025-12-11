@@ -67,7 +67,7 @@ public class UsersController {
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "status", "error",
-                "message", "Invalid credentials",
+                "message", "Неправильные данные для входа",
                 "timestamp", System.currentTimeMillis()
             ));
         }
@@ -76,7 +76,7 @@ public class UsersController {
         if (!valid) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "status", "error",
-                "message", "Invalid credentials",
+                "message", "Неправильные данные для входа",
                 "timestamp", System.currentTimeMillis()
             ));
         }
