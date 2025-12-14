@@ -172,5 +172,62 @@ public class PointsController  {
         }
     }
 
+    @PutMapping("/function/{functionId}")
+    public ResponseEntity<?> updateFunctionPoints(Authentication authentication,
+                                                  @PathVariable UUID functionId,
+                                                  @RequestBody List<Map<String, Object>> pointsData) {
+        String username = authentication.getName();
+        Optional<userEntity> user = userService.findUsersByUsername(username);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<functionEntity> function = functionService.findFunctionById(functionId);
+        if (function.isEmpty() || !user.get().getId().equals(function.get().getAuthor_id())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "Access denied to function: " + functionId,
+                            "timestamp", System.currentTimeMillis()
+                    ));
+        }
+
+        try {
+            // Удаляем старые точки
+            List<pointEntity> oldPoints = pointService.findPointsByFunctionId(functionId);
+            for (pointEntity point : oldPoints) {
+                pointService.deletePointById(point.getId());
+            }
+
+            // Создаем новые точки
+            List<pointEntity> newPoints = new ArrayList<>();
+            for (Map<String, Object> pointData : pointsData) {
+                pointEntity point = new pointEntity();
+                point.setFunction_id(functionId);
+                point.setX_value(((Number) pointData.get("x")).doubleValue());
+                point.setY_value(((Number) pointData.get("y")).doubleValue());
+                newPoints.add(point);
+            }
+
+            List<pointEntity> saved = pointService.savePoints(newPoints);
+            logger.info("Обновлено {} точек для функции {} пользователем {}", saved.size(), functionId, username);
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "updated", true,
+                    "count", saved.size(),
+                    "timestamp", System.currentTimeMillis()
+            ));
+        } catch (Exception e) {
+            logger.error("Ошибка при обновлении точек функции {}", functionId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "status", "error",
+                            "message", "Ошибка обновления точек: " + e.getMessage(),
+                            "timestamp", System.currentTimeMillis()
+                    ));
+        }
+    }
 
 }

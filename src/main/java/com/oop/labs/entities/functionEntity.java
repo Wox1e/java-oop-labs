@@ -1,11 +1,9 @@
 package com.oop.labs.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -22,6 +20,19 @@ public class functionEntity {
     private String type;
 
     private UUID authorId;
+
+    // Храним коэффициенты полинома в JSONB поле PostgreSQL
+    // Функция хранится в полиномиальной форме через аппроксимацию (не поточечно!)
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String polynomialCoefficients; // JSON массив коэффициентов [a0, a1, a2, ...]
+    
+    // Диапазон x для восстановления точек
+    private Double xMin;
+    private Double xMax;
+    
+    // Количество исходных точек (для восстановления)
+    private Integer originalPointCount;
 
 
     public UUID getId(){
@@ -55,4 +66,35 @@ public class functionEntity {
         this.authorId = author_id;
     }
 
+    public String getPolynomialCoefficients() {
+        return polynomialCoefficients;
+    }
+
+    public void setPolynomialCoefficients(String polynomialCoefficients) {
+        this.polynomialCoefficients = polynomialCoefficients;
+    }
+
+    public Double getXMin() {
+        return xMin;
+    }
+
+    public void setXMin(Double xMin) {
+        this.xMin = xMin;
+    }
+
+    public Double getXMax() {
+        return xMax;
+    }
+
+    public void setXMax(Double xMax) {
+        this.xMax = xMax;
+    }
+
+    public Integer getOriginalPointCount() {
+        return originalPointCount;
+    }
+
+    public void setOriginalPointCount(Integer originalPointCount) {
+        this.originalPointCount = originalPointCount;
+    }
 }
